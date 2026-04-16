@@ -16,13 +16,13 @@ describe('monthlyEquivalentCents', () => {
   });
 
   it('converts weekly values into monthly amounts', () => {
-    expect(monthlyEquivalentCents(1000, 'weekly')).toBe(433);
+    expect(monthlyEquivalentCents(1000, 'weekly')).toBe(4333);
   });
 });
 
 describe('yearlyEquivalentCents', () => {
   it('returns yearly amount from monthly equivalent', () => {
     expect(yearlyEquivalentCents(12000, 'yearly')).toBe(12000);
-    expect(yearlyEquivalentCents(1000, 'weekly')).toBe(5196);
+    expect(yearlyEquivalentCents(1000, 'weekly')).toBe(51996);
   });
 });
