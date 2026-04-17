@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import { ThemeProvider } from '@/components/theme-provider';
 
@@ -27,6 +28,7 @@ export default function RootLayout({
     >
       <body className="min-h-full bg-background text-foreground">
         <ThemeProvider>{children}</ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
