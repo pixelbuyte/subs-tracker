@@ -27,6 +27,22 @@ function daysUntil(date: Date) {
   return Math.round((target.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
 }
 
+function renewalCountdownLabel(diffDays: number) {
+  if (diffDays === 0) return 'Renews today';
+  if (diffDays === 1) return 'Renews tomorrow';
+  if (diffDays > 1) return `Renews in ${diffDays} days`;
+  if (diffDays === -1) return 'Overdue by 1 day';
+  return `Overdue by ${Math.abs(diffDays)} days`;
+}
+
+function renewalShortLabel(diffDays: number) {
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Tomorrow';
+  if (diffDays > 1) return `${diffDays} days left`;
+  if (diffDays === -1) return '1 day overdue';
+  return `${Math.abs(diffDays)} days overdue`;
+}
+
 function statusBadgeVariant(status: SubscriptionStatus) {
   return status === 'active' ? 'success' : 'default';
 }
@@ -141,7 +157,9 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant="warning">{diff}d</Badge>
+                      <Badge variant="warning" className="max-w-[160px] truncate">
+                        {renewalShortLabel(diff)}
+                      </Badge>
                       <Link href={`/app/subscriptions/${s.id}/edit`}>
                         <Button size="sm" variant="secondary">
                           Edit
@@ -174,7 +192,9 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={diff <= 7 ? 'warning' : 'default'}>{diff}d</Badge>
+                      <Badge variant={diff <= 7 ? 'warning' : 'default'} className="max-w-[160px] truncate">
+                        {renewalShortLabel(diff)}
+                      </Badge>
                       <Link href={`/app/subscriptions/${s.id}/edit`}>
                         <Button size="sm" variant="secondary">
                           Edit
@@ -277,6 +297,9 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                       const d = parseDateYmd(s.next_renewal_date);
                       const diff = daysUntil(d);
                       const isSoon = s.status === 'active' && diff >= 0 && diff <= 7;
+                      const isOverdue = s.status === 'active' && diff < 0;
+                      const showCountdown =
+                        s.status === 'active' && (diff <= 30 || isOverdue || isSoon);
 
                       return (
                         <tr key={s.id} className="border-b border-[var(--border)] last:border-0">
@@ -288,11 +311,20 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                           <td className="py-3 pr-4">{formatUsdFromCents(s.price_cents)}</td>
                           <td className="py-3 pr-4 capitalize">{s.billing_cycle}</td>
                           <td className="py-3 pr-4">
-                            {s.next_renewal_date}
-                            {isSoon ? (
-                              <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
-                                ({diff}d)
-                              </span>
+                            <div>{s.next_renewal_date}</div>
+                            {showCountdown ? (
+                              <div
+                                className={cn(
+                                  'mt-0.5 text-xs',
+                                  isOverdue
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : isSoon
+                                      ? 'text-amber-600 dark:text-amber-400'
+                                      : 'text-[var(--muted-foreground)]',
+                                )}
+                              >
+                                {renewalCountdownLabel(diff)}
+                              </div>
                             ) : null}
                           </td>
                           <td className="py-3 pr-4">{s.category}</td>
@@ -318,6 +350,9 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                   const d = parseDateYmd(s.next_renewal_date);
                   const diff = daysUntil(d);
                   const isSoon = s.status === 'active' && diff >= 0 && diff <= 7;
+                  const isOverdue = s.status === 'active' && diff < 0;
+                  const showCountdown =
+                    s.status === 'active' && (diff <= 30 || isOverdue || isSoon);
 
                   return (
                     <Card key={s.id} className={cn(isSoon && 'border-amber-500/40')}>
@@ -335,9 +370,22 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                           <span className="text-[var(--muted-foreground)]">Next:</span>{' '}
                           <span className={cn(isSoon && 'text-amber-600 dark:text-amber-400')}>
                             {s.next_renewal_date}
-                            {isSoon ? ` (${diff}d)` : ''}
                           </span>
                         </div>
+                        {showCountdown ? (
+                          <div
+                            className={cn(
+                              'text-xs',
+                              isOverdue
+                                ? 'text-red-600 dark:text-red-400'
+                                : isSoon
+                                  ? 'text-amber-600 dark:text-amber-400'
+                                  : 'text-[var(--muted-foreground)]',
+                            )}
+                          >
+                            {renewalCountdownLabel(diff)}
+                          </div>
+                        ) : null}
                         <div className="text-xs text-[var(--muted-foreground)]">{s.category}</div>
                         <div className="pt-1">
                           <Link href={`/app/subscriptions/${s.id}/edit`}>
