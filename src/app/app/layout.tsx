@@ -25,17 +25,28 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-dvh bg-background">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6">
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-6">
-            <Link href="/app" className="text-sm font-semibold tracking-wide">
-              Subscription Control Center
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:gap-6 sm:px-6 sm:py-6">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-4 sm:gap-6">
+            <Link
+              href="/app"
+              className="truncate text-sm font-semibold tracking-wide"
+              title="Subscription Control Center"
+            >
+              <span className="sm:hidden">Subs Control</span>
+              <span className="hidden sm:inline">Subscription Control Center</span>
             </Link>
-            <nav className="hidden items-center gap-1 sm:flex">
-              <Link href="/app" className="rounded-md px-3 py-2 text-sm hover:bg-muted">
+            <nav className="flex items-center gap-1">
+              <Link
+                href="/app"
+                className="rounded-md px-2 py-1.5 text-sm hover:bg-muted sm:px-3 sm:py-2"
+              >
                 Dashboard
               </Link>
-              <Link href="/app/settings" className="rounded-md px-3 py-2 text-sm hover:bg-muted">
+              <Link
+                href="/app/settings"
+                className="rounded-md px-2 py-1.5 text-sm hover:bg-muted sm:px-3 sm:py-2"
+              >
                 Settings
               </Link>
             </nav>

@@ -47,6 +47,58 @@ function statusBadgeVariant(status: SubscriptionStatus) {
   return status === 'active' ? 'success' : 'default';
 }
 
+function SubscriptionCard({ sub: s }: { sub: SubscriptionRow }) {
+  const d = parseDateYmd(s.next_renewal_date);
+  const diff = daysUntil(d);
+  const isSoon = s.status === 'active' && diff >= 0 && diff <= 7;
+  const isOverdue = s.status === 'active' && diff < 0;
+  const showCountdown = s.status === 'active' && (diff <= 30 || isOverdue || isSoon);
+
+  return (
+    <Card className={cn(isSoon && 'border-amber-500/40')}>
+      <CardContent className="grid gap-2 p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="truncate font-medium">{s.name}</div>
+            <div className="truncate text-xs text-[var(--muted-foreground)]">
+              {formatUsdFromCents(s.price_cents)} · {s.billing_cycle}
+            </div>
+          </div>
+          <Badge variant={statusBadgeVariant(s.status)}>{s.status}</Badge>
+        </div>
+        <div className="text-sm">
+          <span className="text-[var(--muted-foreground)]">Next:</span>{' '}
+          <span className={cn(isSoon && 'text-amber-600 dark:text-amber-400')}>
+            {s.next_renewal_date}
+          </span>
+        </div>
+        {showCountdown ? (
+          <div
+            className={cn(
+              'text-xs',
+              isOverdue
+                ? 'text-red-600 dark:text-red-400'
+                : isSoon
+                  ? 'text-amber-600 dark:text-amber-400'
+                  : 'text-[var(--muted-foreground)]',
+            )}
+          >
+            {renewalCountdownLabel(diff)}
+          </div>
+        ) : null}
+        <div className="text-xs text-[var(--muted-foreground)]">{s.category}</div>
+        <div className="pt-1">
+          <Link href={`/app/subscriptions/${s.id}/edit`}>
+            <Button size="sm" variant="secondary" className="w-full sm:w-auto">
+              Edit
+            </Button>
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export function SubscriptionsDashboard({ subscriptions }: { subscriptions: SubscriptionRow[] }) {
   const [view, setView] = React.useState<'table' | 'cards'>('table');
   const [query, setQuery] = React.useState('');
@@ -106,19 +158,23 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
   }, [active]);
 
   return (
-    <div className="grid gap-6">
-      <div className="grid gap-3 md:grid-cols-3">
+    <div className="grid gap-4 sm:gap-6">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>Monthly total</CardTitle>
           </CardHeader>
-          <CardContent className="text-3xl font-semibold">{formatUsdFromCents(totals.monthly)}</CardContent>
+          <CardContent className="text-2xl font-semibold sm:text-3xl">
+            {formatUsdFromCents(totals.monthly)}
+          </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Yearly total</CardTitle>
           </CardHeader>
-          <CardContent className="text-3xl font-semibold">{formatUsdFromCents(totals.yearly)}</CardContent>
+          <CardContent className="text-2xl font-semibold sm:text-3xl">
+            {formatUsdFromCents(totals.yearly)}
+          </CardContent>
         </Card>
         <Card>
           <CardHeader>
@@ -214,8 +270,8 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
           <CardHeader>
             <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
               <CardTitle>Subscriptions</CardTitle>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div className="relative">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
                   <Input
                     value={query}
@@ -225,6 +281,7 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                   />
                 </div>
                 <Select
+                  className="flex-1 sm:flex-none"
                   value={status}
                   onChange={(e) => {
                     const v = e.target.value;
@@ -235,7 +292,11 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                   <option value="active">Active</option>
                   <option value="cancelled">Cancelled</option>
                 </Select>
-                <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+                <Select
+                  className="flex-1 sm:flex-none"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
                   <option value="all">All categories</option>
                   {categories.map((c) => (
                     <option key={c} value={c}>
@@ -244,7 +305,7 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                   ))}
                 </Select>
 
-                <div className="flex items-center rounded-md border border-[var(--border)] bg-card p-1">
+                <div className="ml-auto hidden items-center rounded-md border border-[var(--border)] bg-card p-1 sm:flex">
                   <button
                     type="button"
                     className={cn(
@@ -278,127 +339,97 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
               <div className="rounded-md border border-[var(--border)] bg-muted p-6 text-sm text-[var(--muted-foreground)]">
                 No subscriptions match your filters.
               </div>
-            ) : view === 'table' ? (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm">
-                  <thead className="text-xs text-[var(--muted-foreground)]">
-                    <tr className="border-b border-[var(--border)]">
-                      <th className="py-2 pr-4">Name</th>
-                      <th className="py-2 pr-4">Price</th>
-                      <th className="py-2 pr-4">Cycle</th>
-                      <th className="py-2 pr-4">Next renewal</th>
-                      <th className="py-2 pr-4">Category</th>
-                      <th className="py-2 pr-4">Status</th>
-                      <th className="py-2 pr-4"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filtered.map((s) => {
-                      const d = parseDateYmd(s.next_renewal_date);
-                      const diff = daysUntil(d);
-                      const isSoon = s.status === 'active' && diff >= 0 && diff <= 7;
-                      const isOverdue = s.status === 'active' && diff < 0;
-                      const showCountdown =
-                        s.status === 'active' && (diff <= 30 || isOverdue || isSoon);
-
-                      return (
-                        <tr key={s.id} className="border-b border-[var(--border)] last:border-0">
-                          <td className="py-3 pr-4 font-medium">
-                            <div className={cn(isSoon && 'text-amber-600 dark:text-amber-400')}>
-                              {s.name}
-                            </div>
-                          </td>
-                          <td className="py-3 pr-4">{formatUsdFromCents(s.price_cents)}</td>
-                          <td className="py-3 pr-4 capitalize">{s.billing_cycle}</td>
-                          <td className="py-3 pr-4">
-                            <div>{s.next_renewal_date}</div>
-                            {showCountdown ? (
-                              <div
-                                className={cn(
-                                  'mt-0.5 text-xs',
-                                  isOverdue
-                                    ? 'text-red-600 dark:text-red-400'
-                                    : isSoon
-                                      ? 'text-amber-600 dark:text-amber-400'
-                                      : 'text-[var(--muted-foreground)]',
-                                )}
-                              >
-                                {renewalCountdownLabel(diff)}
-                              </div>
-                            ) : null}
-                          </td>
-                          <td className="py-3 pr-4">{s.category}</td>
-                          <td className="py-3 pr-4">
-                            <Badge variant={statusBadgeVariant(s.status)}>{s.status}</Badge>
-                          </td>
-                          <td className="py-3 pr-4 text-right">
-                            <Link href={`/app/subscriptions/${s.id}/edit`}>
-                              <Button variant="secondary" size="sm">
-                                Edit
-                              </Button>
-                            </Link>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
             ) : (
-              <div className="grid gap-3 md:grid-cols-2">
-                {filtered.map((s) => {
-                  const d = parseDateYmd(s.next_renewal_date);
-                  const diff = daysUntil(d);
-                  const isSoon = s.status === 'active' && diff >= 0 && diff <= 7;
-                  const isOverdue = s.status === 'active' && diff < 0;
-                  const showCountdown =
-                    s.status === 'active' && (diff <= 30 || isOverdue || isSoon);
+              <>
+                {/* Desktop: table OR cards per toggle. Hidden below sm. */}
+                <div className="hidden sm:block">
+                  {view === 'table' ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm">
+                        <thead className="text-xs text-[var(--muted-foreground)]">
+                          <tr className="border-b border-[var(--border)]">
+                            <th className="py-2 pr-4">Name</th>
+                            <th className="py-2 pr-4">Price</th>
+                            <th className="py-2 pr-4">Cycle</th>
+                            <th className="py-2 pr-4">Next renewal</th>
+                            <th className="py-2 pr-4">Category</th>
+                            <th className="py-2 pr-4">Status</th>
+                            <th className="py-2 pr-4"></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {filtered.map((s) => {
+                            const d = parseDateYmd(s.next_renewal_date);
+                            const diff = daysUntil(d);
+                            const isSoon = s.status === 'active' && diff >= 0 && diff <= 7;
+                            const isOverdue = s.status === 'active' && diff < 0;
+                            const showCountdown =
+                              s.status === 'active' && (diff <= 30 || isOverdue || isSoon);
 
-                  return (
-                    <Card key={s.id} className={cn(isSoon && 'border-amber-500/40')}>
-                      <CardContent className="grid gap-2 p-4">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <div className="font-medium">{s.name}</div>
-                            <div className="text-xs text-[var(--muted-foreground)]">
-                              {formatUsdFromCents(s.price_cents)} · {s.billing_cycle}
-                            </div>
-                          </div>
-                          <Badge variant={statusBadgeVariant(s.status)}>{s.status}</Badge>
-                        </div>
-                        <div className="text-sm">
-                          <span className="text-[var(--muted-foreground)]">Next:</span>{' '}
-                          <span className={cn(isSoon && 'text-amber-600 dark:text-amber-400')}>
-                            {s.next_renewal_date}
-                          </span>
-                        </div>
-                        {showCountdown ? (
-                          <div
-                            className={cn(
-                              'text-xs',
-                              isOverdue
-                                ? 'text-red-600 dark:text-red-400'
-                                : isSoon
-                                  ? 'text-amber-600 dark:text-amber-400'
-                                  : 'text-[var(--muted-foreground)]',
-                            )}
-                          >
-                            {renewalCountdownLabel(diff)}
-                          </div>
-                        ) : null}
-                        <div className="text-xs text-[var(--muted-foreground)]">{s.category}</div>
-                        <div className="pt-1">
-                          <Link href={`/app/subscriptions/${s.id}/edit`}>
-                            <Button size="sm" variant="secondary">
-                              Edit
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+                            return (
+                              <tr
+                                key={s.id}
+                                className="border-b border-[var(--border)] last:border-0"
+                              >
+                                <td className="py-3 pr-4 font-medium">
+                                  <div
+                                    className={cn(isSoon && 'text-amber-600 dark:text-amber-400')}
+                                  >
+                                    {s.name}
+                                  </div>
+                                </td>
+                                <td className="py-3 pr-4">{formatUsdFromCents(s.price_cents)}</td>
+                                <td className="py-3 pr-4 capitalize">{s.billing_cycle}</td>
+                                <td className="py-3 pr-4">
+                                  <div>{s.next_renewal_date}</div>
+                                  {showCountdown ? (
+                                    <div
+                                      className={cn(
+                                        'mt-0.5 text-xs',
+                                        isOverdue
+                                          ? 'text-red-600 dark:text-red-400'
+                                          : isSoon
+                                            ? 'text-amber-600 dark:text-amber-400'
+                                            : 'text-[var(--muted-foreground)]',
+                                      )}
+                                    >
+                                      {renewalCountdownLabel(diff)}
+                                    </div>
+                                  ) : null}
+                                </td>
+                                <td className="py-3 pr-4">{s.category}</td>
+                                <td className="py-3 pr-4">
+                                  <Badge variant={statusBadgeVariant(s.status)}>{s.status}</Badge>
+                                </td>
+                                <td className="py-3 pr-4 text-right">
+                                  <Link href={`/app/subscriptions/${s.id}/edit`}>
+                                    <Button variant="secondary" size="sm">
+                                      Edit
+                                    </Button>
+                                  </Link>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {filtered.map((s) => (
+                        <SubscriptionCard key={s.id} sub={s} />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile: always cards, one per row, tap-friendly. */}
+                <div className="grid gap-3 sm:hidden">
+                  {filtered.map((s) => (
+                    <SubscriptionCard key={s.id} sub={s} />
+                  ))}
+                </div>
+              </>
             )}
           </CardContent>
         </Card>
