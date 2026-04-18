@@ -46,7 +46,30 @@ If you require email confirmation, sign-up will prompt users to check their inbo
   and your production URL (e.g. `https://yourdomain.com/auth/callback`).  
 The app uses `/auth/callback` to finish the OAuth flow and send users to `/app`.
 
-### 5) Run locally
+### 5) (Optional) Email reminders
+
+Daily cron sends users an email when an active subscription renews in 7 / 3 / 1 / 0 days.
+
+1. Create a [Resend](https://resend.com) account, verify a sending domain (or use `onboarding@resend.dev` for local testing), and grab an API key.
+2. In Supabase → **Project Settings → API**, copy the `service_role` key (server-only — never expose).
+3. Add to `.env.local` (and to Vercel project env vars for prod):
+   ```
+   SUPABASE_SERVICE_ROLE_KEY=...
+   RESEND_API_KEY=...
+   EMAIL_FROM="Subscription Control Center <reminders@yourdomain.com>"
+   CRON_SECRET=any-long-random-string
+   ```
+4. The cron schedule lives in `vercel.json` (`0 14 * * *` UTC = 9am ET).
+5. Deploy. Vercel will run the cron automatically and send `Authorization: Bearer $CRON_SECRET`.
+
+**Test it manually:**
+```bash
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/reminders
+```
+
+Returns `{ ok, processed, sent, skipped, failures }`. The dedupe table (`sent_reminders`) prevents double-sends.
+
+### 6) Run locally
 
 ```bash
 npm run dev
@@ -57,11 +80,12 @@ Open `http://localhost:3000`.
 ## MVP Features
 
 - Landing page
-- Sign up / log in
+- Sign up / log in (email + Google OAuth)
 - Dashboard totals (monthly/yearly), category totals
-- Upcoming renewals (7/30 days) + highlights
+- Upcoming renewals (7/30 days) + day-by-day countdown
 - CRUD subscriptions (add/edit/delete, active/cancelled)
-- Filters + search
+- Filters + search, table + card views, mobile-first cards on phones
 - CSV export (Dashboard → Export CSV)
-- Settings page (includes reminders/notifications stub)
+- **Daily email reminders** (7 / 3 / 1 / 0 days before renewal, bundled per user)
+- Settings page
 

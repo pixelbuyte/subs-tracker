@@ -77,3 +77,31 @@ for delete
 to authenticated
 using (user_id = auth.uid());
 
+-- ──────────────────────────────────────────────────────────────────────
+-- Reminder emails: dedupe table so the daily cron doesn't double-send.
+-- One row per (subscription, renewal_date, days_before) milestone.
+-- ──────────────────────────────────────────────────────────────────────
+create table if not exists public.sent_reminders (
+  id uuid primary key default gen_random_uuid(),
+  subscription_id uuid not null references public.subscriptions (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  renewal_date date not null,
+  days_before integer not null,
+  sent_at timestamptz not null default now(),
+  unique (subscription_id, renewal_date, days_before)
+);
+
+create index if not exists sent_reminders_user_idx on public.sent_reminders (user_id);
+create index if not exists sent_reminders_sent_at_idx on public.sent_reminders (sent_at desc);
+
+alter table public.sent_reminders enable row level security;
+
+-- Users can read their own reminder history (for a future "reminders sent" view).
+-- Inserts happen only via the service-role cron, which bypasses RLS.
+drop policy if exists "sent_reminders_select_own" on public.sent_reminders;
+create policy "sent_reminders_select_own"
+on public.sent_reminders
+for select
+to authenticated
+using (user_id = auth.uid());
+

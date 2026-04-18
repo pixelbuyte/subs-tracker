@@ -29,11 +29,20 @@ export default async function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Reminders / notifications</CardTitle>
+          <CardTitle>Email reminders</CardTitle>
         </CardHeader>
-        <CardContent className="text-sm text-[var(--muted-foreground)]">
-          MVP stub: reminders will live here (e.g., email or in-app notifications for renewals in 7/30
-          days). For v1, the dashboard highlights upcoming renewals.
+        <CardContent className="grid gap-3 text-sm">
+          <p className="text-[var(--muted-foreground)]">
+            We&apos;ll email you when an active subscription is about to renew. You&apos;ll get a
+            reminder <span className="font-medium text-foreground">7 days</span>,{' '}
+            <span className="font-medium text-foreground">3 days</span>, and{' '}
+            <span className="font-medium text-foreground">1 day</span> before the renewal date, plus
+            one on the day itself.
+          </p>
+          <p className="text-[var(--muted-foreground)]">
+            Multiple subs renewing at the same time get bundled into one email. Reminders go to{' '}
+            <span className="font-medium text-foreground">{user.email ?? 'your account email'}</span>.
+          </p>
         </CardContent>
       </Card>
 
