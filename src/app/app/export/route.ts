@@ -1,12 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { listSubscriptions } from '@/lib/subscriptions/server';
-
-function csvEscape(value: unknown) {
-  const s = value == null ? '' : String(value);
-  if (/[",\n]/.test(s)) return `"${s.replaceAll('"', '""')}"`;
-  return s;
-}
+import { csvEscapeCell } from '@/lib/csv';
 
 export async function GET() {
   const subs = await listSubscriptions();
@@ -42,7 +37,7 @@ export async function GET() {
   ]);
 
   const csv =
-    `${header.join(',')}\n` + rows.map((r) => r.map(csvEscape).join(',')).join('\n') + '\n';
+    `${header.join(',')}\n` + rows.map((r) => r.map(csvEscapeCell).join(',')).join('\n') + '\n';
 
   return new NextResponse(csv, {
     headers: {
