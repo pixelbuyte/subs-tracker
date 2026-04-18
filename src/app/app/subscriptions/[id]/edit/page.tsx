@@ -6,8 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getSubscriptionById } from '@/lib/subscriptions/server';
 
-export default async function EditSubscriptionPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function EditSubscriptionPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
   const subscription = await getSubscriptionById(id);
   const action = updateSubscriptionAction.bind(null, id);
 

@@ -30,12 +30,21 @@ Run the SQL in:
 
 …inside your Supabase project’s SQL editor.
 
-### 4) Enable email/password auth
+### 4) Enable auth providers
 
 In Supabase Dashboard:
 - Auth → Providers → **Email**: enable email/password
 
 If you require email confirmation, sign-up will prompt users to check their inbox before logging in.
+
+**Google sign-in (optional)**  
+- Auth → Providers → **Google**: enable, add Client ID + Secret from Google Cloud Console.  
+- Google Cloud → OAuth client → **Authorized redirect URIs**:  
+  `https://<YOUR_PROJECT_REF>.supabase.co/auth/v1/callback`  
+- Supabase → Auth → **URL Configuration** → **Redirect URLs**: add  
+  `http://localhost:3000/auth/callback`  
+  and your production URL (e.g. `https://yourdomain.com/auth/callback`).  
+The app uses `/auth/callback` to finish the OAuth flow and send users to `/app`.
 
 ### 5) Run locally
 

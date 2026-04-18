@@ -17,12 +17,14 @@ export default async function DashboardPage() {
             Your control panel for recurring spend.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Link href="/app/export">
-            <Button variant="secondary">Export CSV</Button>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+          <Link href="/app/export" className="w-full sm:w-auto">
+            <Button variant="secondary" className="w-full sm:w-auto">
+              Export CSV
+            </Button>
           </Link>
-          <Link href="/app/subscriptions/new">
-            <Button>Add subscription</Button>
+          <Link href="/app/subscriptions/new" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto">Add subscription</Button>
           </Link>
         </div>
       </div>

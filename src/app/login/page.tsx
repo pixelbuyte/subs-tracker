@@ -4,7 +4,11 @@ import { hasSupabaseEnv } from '@/lib/env';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   if (!hasSupabaseEnv()) redirect('/setup');
 
   const supabase = await createSupabaseServerClient();
@@ -13,9 +17,11 @@ export default async function LoginPage() {
   } = await supabase.auth.getUser();
   if (user) redirect('/app');
 
+  const { error: oauthError } = await searchParams;
+
   return (
     <AuthCard title="Log in" subtitle="Access your dashboard and subscriptions." footer={null}>
-      <AuthForm mode="login" />
+      <AuthForm mode="login" oauthError={oauthError} />
     </AuthCard>
   );
 }

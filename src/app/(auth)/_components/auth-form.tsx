@@ -11,13 +11,23 @@ import { createSupabaseBrowserClient } from '@/lib/supabase/browser';
 
 type Mode = 'login' | 'signup';
 
-export function AuthForm({ mode }: { mode: Mode }) {
+export function AuthForm({ mode, oauthError }: { mode: Mode; oauthError?: string | null }) {
   const router = useRouter();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (oauthError) {
+      try {
+        setError(decodeURIComponent(oauthError));
+      } catch {
+        setError(oauthError);
+      }
+    }
+  }, [oauthError]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,7 +59,48 @@ export function AuthForm({ mode }: { mode: Mode }) {
     }
   }
 
+  async function signInWithGoogle() {
+    setError(null);
+    setMessage(null);
+    setIsSubmitting(true);
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=/app`,
+        },
+      });
+      if (error) throw error;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Google sign-in failed.';
+      setError(msg);
+      setIsSubmitting(false);
+    }
+  }
+
   return (
+    <div className="grid gap-4">
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full"
+        disabled={isSubmitting}
+        onClick={() => void signInWithGoogle()}
+      >
+        {isSubmitting ? <Spinner className="size-4" /> : null}
+        Continue with Google
+      </Button>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-[var(--border)]" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-[var(--muted-foreground)]">or email</span>
+        </div>
+      </div>
+
     <form className="grid gap-3" onSubmit={onSubmit}>
       <label className="grid gap-1 text-sm">
         <span className="text-[var(--muted-foreground)]">Email</span>
@@ -109,6 +160,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
         )}
       </div>
     </form>
+    </div>
   );
 }
 
