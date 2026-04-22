@@ -47,7 +47,7 @@ export default function Home() {
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Link href="/login" className="hidden sm:block">
+            <Link href="/login">
               <Button variant="ghost" size="sm">
                 Log in
               </Button>
@@ -97,11 +97,11 @@ export default function Home() {
                     Start free <ArrowRight className="size-4" />
                   </Button>
                 </Link>
-                <Link href="/login">
+                <a href="#features">
                   <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                    I already have an account
+                    See how it works
                   </Button>
-                </Link>
+                </a>
               </div>
 
               <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--muted-foreground)]">
