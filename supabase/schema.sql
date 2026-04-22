@@ -111,6 +111,34 @@ to authenticated
 using (user_id = auth.uid());
 
 -- ──────────────────────────────────────────────────────────────────────
+-- Billing: one plan row per user. Free is implicit (no row), but we
+-- insert rows for upgraded users and keep Stripe refs so webhooks can
+-- update status in place.
+-- ──────────────────────────────────────────────────────────────────────
+create table if not exists public.user_plans (
+  user_id uuid primary key references auth.users (id) on delete cascade,
+  plan text not null default 'free' check (plan in ('free', 'pro')),
+  stripe_customer_id text unique,
+  stripe_subscription_id text unique,
+  status text,
+  current_period_end timestamptz,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists user_plans_customer_idx on public.user_plans (stripe_customer_id);
+
+alter table public.user_plans enable row level security;
+
+-- Users can read their own plan. Writes happen only via the service-role
+-- webhook / checkout handler, which bypasses RLS.
+drop policy if exists "user_plans_select_own" on public.user_plans;
+create policy "user_plans_select_own"
+on public.user_plans
+for select
+to authenticated
+using (user_id = auth.uid());
+
+-- ──────────────────────────────────────────────────────────────────────
 -- Migrations (safe to re-run; each line is a no-op if already applied)
 -- ──────────────────────────────────────────────────────────────────────
 alter table public.subscriptions add column if not exists website_url text;

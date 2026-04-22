@@ -1,7 +1,19 @@
 import { z } from 'zod';
 
+import { FREE_SUBSCRIPTION_LIMIT, getCurrentUserPlan } from '@/lib/plan/server';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import type { BillingCycle, SubscriptionRow, SubscriptionStatus } from '@/lib/subscriptions/types';
+
+/** Thrown when a Free user tries to add a subscription past the limit. */
+export class FreePlanLimitError extends Error {
+  readonly code = 'FREE_PLAN_LIMIT';
+  constructor(limit: number) {
+    super(
+      `Free plan is limited to ${limit} subscriptions. Upgrade to Pro for unlimited.`,
+    );
+    this.name = 'FreePlanLimitError';
+  }
+}
 
 export const subscriptionInputSchema = z.object({
   name: z.string().min(1).max(120),
@@ -79,6 +91,18 @@ export async function createSubscription(input: SubscriptionInput) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error('Not authenticated');
+
+  // Enforce Free plan limit. Pro is unlimited.
+  const plan = await getCurrentUserPlan();
+  if (plan.plan === 'free') {
+    const { count, error: countErr } = await supabase
+      .from('subscriptions')
+      .select('*', { count: 'exact', head: true });
+    if (countErr) throw countErr;
+    if ((count ?? 0) >= FREE_SUBSCRIPTION_LIMIT) {
+      throw new FreePlanLimitError(FREE_SUBSCRIPTION_LIMIT);
+    }
+  }
 
   const base = {
     ...input,

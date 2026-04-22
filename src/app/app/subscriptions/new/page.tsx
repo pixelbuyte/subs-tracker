@@ -4,10 +4,21 @@ import { createSubscriptionAction } from '@/app/app/subscriptions/_actions';
 import { SubscriptionForm } from '@/app/app/subscriptions/_components/subscription-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  FREE_SUBSCRIPTION_LIMIT,
+  getCurrentUserPlan,
+  getCurrentUserSubscriptionCount,
+} from '@/lib/plan/server';
 import { hasWebsiteUrlColumn } from '@/lib/subscriptions/server';
 
 export default async function NewSubscriptionPage() {
-  const websiteColumnExists = await hasWebsiteUrlColumn();
+  const [websiteColumnExists, plan, usage] = await Promise.all([
+    hasWebsiteUrlColumn(),
+    getCurrentUserPlan(),
+    getCurrentUserSubscriptionCount(),
+  ]);
+
+  const atLimit = plan.plan === 'free' && usage >= FREE_SUBSCRIPTION_LIMIT;
 
   return (
     <div className="grid gap-6">
@@ -35,14 +46,37 @@ export default async function NewSubscriptionPage() {
         </div>
       ) : null}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <SubscriptionForm mode="create" action={createSubscriptionAction} />
-        </CardContent>
-      </Card>
+      {atLimit ? (
+        <Card className="border-indigo-500/40 bg-gradient-to-b from-indigo-500/10 to-fuchsia-500/5">
+          <CardHeader>
+            <CardTitle>You&apos;ve hit the Free plan limit</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 text-sm">
+            <p className="text-[var(--muted-foreground)]">
+              Free is capped at <strong className="text-foreground">{FREE_SUBSCRIPTION_LIMIT}</strong>{' '}
+              subscriptions. Upgrade to <strong className="text-foreground">Pro ($8.99/mo)</strong>{' '}
+              for unlimited subscriptions, renewal reminder emails, and trial tracking.
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link href="/app/settings">
+                <Button>Upgrade to Pro</Button>
+              </Link>
+              <Link href="/app">
+                <Button variant="secondary">Back to dashboard</Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SubscriptionForm mode="create" action={createSubscriptionAction} />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

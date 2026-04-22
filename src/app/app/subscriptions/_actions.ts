@@ -5,6 +5,7 @@ import { z } from 'zod';
 
 import {
   createSubscription,
+  FreePlanLimitError,
   subscriptionInputSchema,
   updateSubscription,
   deleteSubscription,
@@ -48,6 +49,11 @@ export async function createSubscriptionAction(_prev: ActionState, formData: For
 
     await createSubscription(parsed);
   } catch (err) {
+    if (err instanceof FreePlanLimitError) {
+      return {
+        error: err.message,
+      };
+    }
     const msg = err instanceof Error ? err.message : 'Unable to create subscription.';
     return { error: msg };
   }

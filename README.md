@@ -67,9 +67,47 @@ Daily cron sends users an email when an active subscription renews in 7 / 3 / 1 
 curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/reminders
 ```
 
-Returns `{ ok, processed, sent, skipped, failures }`. The dedupe table (`sent_reminders`) prevents double-sends.
+Returns `{ ok, processed, sent, skipped, failures, gatedByPlan }`. The dedupe table (`sent_reminders`) prevents double-sends. **Reminder emails are a Pro feature** — users without a `pro` row in `user_plans` are gated out (counted in `gatedByPlan`).
 
-### 6) Run locally
+### 6) (Optional) Stripe billing (Pro plan — $8.99/mo)
+
+Unlocks unlimited subscriptions + reminder emails. Leave these env vars blank to run the app without billing; the upgrade button will just show a configuration notice.
+
+1. Create a [Stripe](https://stripe.com) account (test mode is fine).
+2. **Dashboard → Product catalog → Add product**
+   - Name: `Subscription Control Center — Pro`
+   - Pricing: **Recurring**, `$8.99`, billed **monthly**
+   - Save and copy the **Price ID** (starts with `price_…`).
+3. **Dashboard → Developers → API keys** — copy the **Secret key** (`sk_test_…`).
+4. Add to `.env.local` (and Vercel project env vars for prod):
+   ```
+   STRIPE_SECRET_KEY=sk_test_...
+   NEXT_PUBLIC_STRIPE_PRICE_PRO=price_...
+   NEXT_PUBLIC_APP_URL=http://localhost:3000   # prod: https://yourdomain.com
+   ```
+5. **Dashboard → Developers → Webhooks → Add endpoint**
+   - Endpoint URL: `https://yourdomain.com/api/stripe/webhook` (for local dev, use the Stripe CLI — see below)
+   - Events to send:
+     - `checkout.session.completed`
+     - `customer.subscription.created`
+     - `customer.subscription.updated`
+     - `customer.subscription.deleted`
+   - After saving, click **Reveal** under "Signing secret" and copy `whsec_…` → set as:
+   ```
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+6. **Dashboard → Settings → Billing → Customer Portal** — enable the portal and allow subscription cancellation / payment method updates.
+
+**Local webhook testing with Stripe CLI:**
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+# copy the whsec_... it prints into .env.local
+```
+
+**Users:** Free gets 5 subscriptions. Pro gets unlimited + reminder emails. Upgrade flow lives on `/app/settings`.
+
+### 7) Run locally
 
 ```bash
 npm run dev
@@ -86,6 +124,7 @@ Open `http://localhost:3000`.
 - CRUD subscriptions (add/edit/delete, active/cancelled)
 - Filters + search, table + card views, mobile-first cards on phones
 - CSV export (Dashboard → Export CSV)
-- **Daily email reminders** (7 / 3 / 1 / 0 days before renewal, bundled per user)
+- **Daily email reminders** (7 / 3 / 1 / 0 days before renewal, bundled per user — Pro only)
+- **Stripe billing** — Free (5 subs) / Pro (unlimited, $8.99/mo)
 - Settings page
 

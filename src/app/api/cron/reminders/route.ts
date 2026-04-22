@@ -80,13 +80,40 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: false, error: subsErr.message }, { status: 500 });
   }
 
-  const candidates: { sub: SubscriptionRow; daysBefore: number }[] = (subs ?? []).map((s) => {
+  const rawCandidates: { sub: SubscriptionRow; daysBefore: number }[] = (subs ?? []).map((s) => {
     const match = targetDates.find((t) => t.date === s.next_renewal_date);
     return { sub: s as SubscriptionRow, daysBefore: match?.daysBefore ?? 0 };
   });
 
-  if (candidates.length === 0) {
+  if (rawCandidates.length === 0) {
     return NextResponse.json({ ok: true, processed: 0, sent: 0, skipped: 0 });
+  }
+
+  // Reminder emails are a Pro feature. Filter candidates down to users who
+  // currently have an active 'pro' plan row.
+  const candidateUserIds = Array.from(new Set(rawCandidates.map((c) => c.sub.user_id)));
+  const { data: proPlans, error: planErr } = await supabase
+    .from('user_plans')
+    .select('user_id')
+    .eq('plan', 'pro')
+    .in('user_id', candidateUserIds);
+
+  if (planErr) {
+    return NextResponse.json({ ok: false, error: planErr.message }, { status: 500 });
+  }
+
+  const proUserSet = new Set((proPlans ?? []).map((p) => p.user_id));
+  const candidates = rawCandidates.filter((c) => proUserSet.has(c.sub.user_id));
+  const gatedByPlan = rawCandidates.length - candidates.length;
+
+  if (candidates.length === 0) {
+    return NextResponse.json({
+      ok: true,
+      processed: rawCandidates.length,
+      sent: 0,
+      skipped: 0,
+      gatedByPlan,
+    });
   }
 
   // Filter out already-sent (subscription_id, renewal_date, days_before) milestones.
@@ -195,9 +222,11 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     ok: true,
-    processed: candidates.length,
+    processed: rawCandidates.length,
+    eligible: candidates.length,
     sent,
     skipped: candidates.length - todo.length,
+    gatedByPlan,
     failures,
   });
 }

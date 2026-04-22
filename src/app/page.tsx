@@ -252,7 +252,7 @@ export default function Home() {
           />
           <PricingCard
             name="Pro"
-            price="$4"
+            price="$8.99"
             period="/ month"
             tagline="The upgrade that saves its own price"
             highlighted
@@ -264,7 +264,7 @@ export default function Home() {
               'Priority support',
             ]}
             cta={
-              <Link href="/signup" className="w-full">
+              <Link href="/signup?upgrade=1" className="w-full">
                 <Button className="w-full">Start free, upgrade anytime</Button>
               </Link>
             }
@@ -297,7 +297,7 @@ export default function Home() {
             />
             <FAQ
               q="Why is there a paid tier?"
-              a="To cover servers + email costs honestly. $4/mo is designed to pay for itself the first time a reminder saves you from a forgotten charge."
+              a="To cover servers + email costs honestly. $8.99/mo is designed to pay for itself the first time a reminder saves you from a forgotten charge."
             />
             <FAQ
               q="Can I cancel / export my data?"
