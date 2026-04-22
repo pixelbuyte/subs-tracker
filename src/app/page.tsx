@@ -365,13 +365,29 @@ export default function Home() {
 
 /* ── Small components ───────────────────────────────────────── */
 
-function LogoMark() {
+function LogoMark({ className = 'size-6' }: { className?: string }) {
   return (
     <span
       aria-hidden
-      className="flex size-6 items-center justify-center rounded-md bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-cyan-500 text-[10px] font-bold text-white"
+      className={`relative inline-flex ${className} items-center justify-center overflow-hidden rounded-[8px] bg-foreground text-background shadow-[0_1px_0_0_rgba(255,255,255,0.08)_inset,0_0_0_1px_rgba(255,255,255,0.04)]`}
     >
-      S
+      <span
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-fuchsia-500 to-cyan-500 opacity-90"
+      />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        className="relative size-[60%] text-white"
+        aria-hidden
+      >
+        {/* stacked "subscription rows" */}
+        <rect x="4" y="6" width="16" height="2.5" rx="1.25" fill="currentColor" opacity="0.95" />
+        <rect x="4" y="11" width="12" height="2.5" rx="1.25" fill="currentColor" opacity="0.7" />
+        <rect x="4" y="16" width="8" height="2.5" rx="1.25" fill="currentColor" opacity="0.45" />
+        {/* renewal pulse dot */}
+        <circle cx="18.5" cy="17.25" r="1.75" fill="#fbbf24" />
+      </svg>
     </span>
   );
 }
