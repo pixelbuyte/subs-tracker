@@ -42,6 +42,7 @@ export async function createSubscriptionAction(_prev: ActionState, formData: For
       next_renewal_date: getString(formData, 'next_renewal_date'),
       category: getString(formData, 'category') || 'Other',
       notes: getString(formData, 'notes') || undefined,
+      website_url: getString(formData, 'website_url') || undefined,
       status: getString(formData, 'status') || 'active',
     });
 
@@ -70,6 +71,7 @@ export async function updateSubscriptionAction(
       next_renewal_date: getString(formData, 'next_renewal_date'),
       category: getString(formData, 'category') || 'Other',
       notes: getString(formData, 'notes') || undefined,
+      website_url: getString(formData, 'website_url') || undefined,
       status: getString(formData, 'status') || 'active',
     });
 

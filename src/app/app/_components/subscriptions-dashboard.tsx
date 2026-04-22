@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
+import { SubscriptionLogo } from '@/components/subscription-logo';
 import { cn } from '@/lib/utils';
 
 function parseDateYmd(ymd: string) {
@@ -58,10 +59,18 @@ function SubscriptionCard({ sub: s }: { sub: SubscriptionRow }) {
     <Card className={cn(isSoon && 'border-amber-500/40')}>
       <CardContent className="grid gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="truncate font-medium">{s.name}</div>
-            <div className="truncate text-xs text-[var(--muted-foreground)]">
-              {formatUsdFromCents(s.price_cents)} · {s.billing_cycle}
+          <div className="flex min-w-0 items-center gap-3">
+            <SubscriptionLogo
+              name={s.name}
+              websiteUrl={s.website_url}
+              size="md"
+              tone={isOverdue ? 'red' : isSoon ? 'amber' : 'default'}
+            />
+            <div className="min-w-0">
+              <div className="truncate font-medium">{s.name}</div>
+              <div className="truncate text-xs text-[var(--muted-foreground)]">
+                {formatUsdFromCents(s.price_cents)} · {s.billing_cycle}
+              </div>
             </div>
           </div>
           <Badge variant={statusBadgeVariant(s.status)}>{s.status}</Badge>
@@ -206,10 +215,18 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                 const diff = daysUntil(parseDateYmd(s.next_renewal_date));
                 return (
                   <div key={s.id} className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="truncate font-medium">{s.name}</div>
-                      <div className="truncate text-xs text-[var(--muted-foreground)]">
-                        {s.next_renewal_date} · {formatUsdFromCents(s.price_cents)}
+                    <div className="flex min-w-0 items-center gap-3">
+                      <SubscriptionLogo
+                        name={s.name}
+                        websiteUrl={s.website_url}
+                        size="sm"
+                        tone="amber"
+                      />
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">{s.name}</div>
+                        <div className="truncate text-xs text-[var(--muted-foreground)]">
+                          {s.next_renewal_date} · {formatUsdFromCents(s.price_cents)}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -241,10 +258,18 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                 const diff = daysUntil(parseDateYmd(s.next_renewal_date));
                 return (
                   <div key={s.id} className="flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="truncate font-medium">{s.name}</div>
-                      <div className="truncate text-xs text-[var(--muted-foreground)]">
-                        {s.next_renewal_date} · {formatUsdFromCents(s.price_cents)}
+                    <div className="flex min-w-0 items-center gap-3">
+                      <SubscriptionLogo
+                        name={s.name}
+                        websiteUrl={s.website_url}
+                        size="sm"
+                        tone={diff <= 7 ? 'amber' : 'default'}
+                      />
+                      <div className="min-w-0">
+                        <div className="truncate font-medium">{s.name}</div>
+                        <div className="truncate text-xs text-[var(--muted-foreground)]">
+                          {s.next_renewal_date} · {formatUsdFromCents(s.price_cents)}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -372,10 +397,20 @@ export function SubscriptionsDashboard({ subscriptions }: { subscriptions: Subsc
                                 className="border-b border-[var(--border)] last:border-0"
                               >
                                 <td className="py-3 pr-4 font-medium">
-                                  <div
-                                    className={cn(isSoon && 'text-amber-600 dark:text-amber-400')}
-                                  >
-                                    {s.name}
+                                  <div className="flex items-center gap-3">
+                                    <SubscriptionLogo
+                                      name={s.name}
+                                      websiteUrl={s.website_url}
+                                      size="sm"
+                                      tone={isOverdue ? 'red' : isSoon ? 'amber' : 'default'}
+                                    />
+                                    <span
+                                      className={cn(
+                                        isSoon && 'text-amber-600 dark:text-amber-400',
+                                      )}
+                                    >
+                                      {s.name}
+                                    </span>
                                   </div>
                                 </td>
                                 <td className="py-3 pr-4">{formatUsdFromCents(s.price_cents)}</td>

@@ -10,6 +10,28 @@ export const subscriptionInputSchema = z.object({
   next_renewal_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   category: z.string().min(1).max(40),
   notes: z.string().max(500).optional(),
+  website_url: z
+    .string()
+    .trim()
+    .max(500)
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .refine(
+      (v) => {
+        if (!v) return true;
+        // Accept bare domains (netflix.com) OR full URLs.
+        if (/^https?:\/\//i.test(v)) {
+          try {
+            new URL(v);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+        return /^[a-z0-9][a-z0-9-]*(\.[a-z0-9-]+)+(\/.*)?$/i.test(v);
+      },
+      { message: 'Enter a valid URL or domain (e.g. netflix.com)' },
+    ),
   status: z.enum(['active', 'cancelled']) satisfies z.ZodType<SubscriptionStatus>,
 });
 
@@ -44,6 +66,7 @@ export async function createSubscription(input: SubscriptionInput) {
     ...input,
     user_id: user.id,
     notes: input.notes?.trim() ? input.notes.trim() : null,
+    website_url: input.website_url?.trim() ? input.website_url.trim() : null,
   });
 
   if (error) throw error;
@@ -56,6 +79,7 @@ export async function updateSubscription(id: string, input: SubscriptionInput) {
     .update({
       ...input,
       notes: input.notes?.trim() ? input.notes.trim() : null,
+      website_url: input.website_url?.trim() ? input.website_url.trim() : null,
     })
     .eq('id', id);
 

@@ -16,6 +16,7 @@ import {
   Zap,
 } from 'lucide-react';
 
+import { SubscriptionLogo } from '@/components/subscription-logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 
@@ -520,10 +521,38 @@ function FAQ({ q, a }: { q: string; a: string }) {
 
 function DashboardPreview() {
   const rows = [
-    { name: 'Netflix', price: '$15.99', cycle: 'monthly', when: 'Renews in 3 days', accent: 'amber' },
-    { name: 'Spotify', price: '$9.99', cycle: 'monthly', when: 'Renews in 12 days', accent: 'muted' },
-    { name: 'iCloud+', price: '$2.99', cycle: 'monthly', when: 'Renews in 18 days', accent: 'muted' },
-    { name: 'NYT', price: '$17.00', cycle: 'monthly', when: 'Renews tomorrow', accent: 'red' },
+    {
+      name: 'Netflix',
+      domain: 'netflix.com',
+      price: '$15.99',
+      cycle: 'monthly',
+      when: 'Renews in 3 days',
+      accent: 'amber',
+    },
+    {
+      name: 'Spotify',
+      domain: 'spotify.com',
+      price: '$9.99',
+      cycle: 'monthly',
+      when: 'Renews in 12 days',
+      accent: 'muted',
+    },
+    {
+      name: 'iCloud+',
+      domain: 'icloud.com',
+      price: '$2.99',
+      cycle: 'monthly',
+      when: 'Renews in 18 days',
+      accent: 'muted',
+    },
+    {
+      name: 'NYT',
+      domain: 'nytimes.com',
+      price: '$17.00',
+      cycle: 'monthly',
+      when: 'Renews tomorrow',
+      accent: 'red',
+    },
   ] as const;
 
   return (
@@ -564,17 +593,12 @@ function DashboardPreview() {
             {rows.map((r) => (
               <li key={r.name} className="flex items-center justify-between px-3 py-2.5 text-sm">
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`flex size-8 items-center justify-center rounded-md text-xs font-semibold ${
-                      r.accent === 'amber'
-                        ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                        : r.accent === 'red'
-                          ? 'bg-red-500/15 text-red-600 dark:text-red-400'
-                          : 'bg-muted text-[var(--muted-foreground)]'
-                    }`}
-                  >
-                    {r.name[0]}
-                  </span>
+                  <SubscriptionLogo
+                    name={r.name}
+                    websiteUrl={r.domain}
+                    size="md"
+                    tone={r.accent === 'amber' ? 'amber' : r.accent === 'red' ? 'red' : 'default'}
+                  />
                   <div>
                     <div className="font-medium">{r.name}</div>
                     <div className="text-xs text-[var(--muted-foreground)]">

@@ -1,5 +1,9 @@
 -- Subscription Control Center (MVP) schema
 -- Run this in the Supabase SQL editor for your project.
+--
+-- Safe to re-run. `create table if not exists` won't touch existing tables,
+-- so if you're upgrading an older install and need new columns, run the
+-- matching `alter table` line from the Migrations section at the bottom.
 
 create extension if not exists "pgcrypto";
 
@@ -27,6 +31,7 @@ create table if not exists public.subscriptions (
 
   category text not null default 'Other',
   notes text,
+  website_url text,
 
   status text not null default 'active' check (status in ('active', 'cancelled')),
 
@@ -104,4 +109,9 @@ on public.sent_reminders
 for select
 to authenticated
 using (user_id = auth.uid());
+
+-- ──────────────────────────────────────────────────────────────────────
+-- Migrations (safe to re-run; each line is a no-op if already applied)
+-- ──────────────────────────────────────────────────────────────────────
+alter table public.subscriptions add column if not exists website_url text;
 

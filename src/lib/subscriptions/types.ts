@@ -11,6 +11,7 @@ export type SubscriptionRow = {
   next_renewal_date: string; // YYYY-MM-DD
   category: string;
   notes: string | null;
+  website_url: string | null;
   status: SubscriptionStatus;
   created_at: string;
   updated_at: string;
