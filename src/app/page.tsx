@@ -597,6 +597,7 @@ function DashboardPreview() {
                     name={r.name}
                     websiteUrl={r.domain}
                     size="md"
+                    priority
                     tone={r.accent === 'amber' ? 'amber' : r.accent === 'red' ? 'red' : 'default'}
                   />
                   <div>

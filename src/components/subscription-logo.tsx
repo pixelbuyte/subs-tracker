@@ -24,6 +24,11 @@ const imgSizePx: Record<Size, number> = {
   lg: 40,
 };
 
+/** Reject 1×1/blank/transparent "success" responses some CDNs return. */
+const MIN_LOGO_PX = 2;
+
+const LOAD_TIMEOUT_MS = 5000;
+
 function initials(name: string) {
   const letters = name
     .split(/\s+/)
@@ -35,7 +40,7 @@ function initials(name: string) {
   return letters || '?';
 }
 
-/** Stable pastel background from name — used for the initials fallback. */
+/** Stable pastel background from name — used for the initials layer. */
 function colorFromName(name: string) {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
@@ -53,6 +58,8 @@ export function SubscriptionLogo({
   size = 'md',
   tone,
   className,
+  /** LCP/hero: load immediately instead of lazy. */
+  priority = false,
 }: {
   name: string;
   websiteUrl?: string | null;
@@ -60,6 +67,7 @@ export function SubscriptionLogo({
   /** Optional accent tint to match the row (e.g. red for "overdue"). */
   tone?: 'default' | 'amber' | 'red';
   className?: string;
+  priority?: boolean;
 }) {
   const domain = React.useMemo(() => {
     return deriveDomain(websiteUrl) ?? guessDomainFromName(name);
@@ -67,14 +75,24 @@ export function SubscriptionLogo({
 
   const px = imgSizePx[size];
 
-  // Try Clearbit first; on error fall through to Google favicon; on error show initials.
-  // We track which "stage" we're on via component state.
-  const [stage, setStage] = React.useState<'clearbit' | 'google' | 'fallback'>(
-    domain ? 'clearbit' : 'fallback',
-  );
+  /** 0 = Clearbit, 1 = Google favicon. >=2 = no more network attempts. */
+  const [attempt, setAttempt] = React.useState(0);
+  const [imageOk, setImageOk] = React.useState(false);
+  const loadResolvedRef = React.useRef(false);
+  const loadTimeoutRef = React.useRef<number | null>(null);
+
+  const clearLoadTimeout = React.useCallback(() => {
+    const id = loadTimeoutRef.current;
+    if (id != null) {
+      window.clearTimeout(id);
+      loadTimeoutRef.current = null;
+    }
+  }, []);
 
   React.useEffect(() => {
-    setStage(domain ? 'clearbit' : 'fallback');
+    setAttempt(0);
+    setImageOk(false);
+    loadResolvedRef.current = false;
   }, [domain]);
 
   const c = colorFromName(name);
@@ -92,44 +110,105 @@ export function SubscriptionLogo({
     className,
   );
 
-  if (stage !== 'fallback' && domain) {
-    const src = stage === 'clearbit' ? clearbitLogoUrl(domain, 128) : googleFaviconUrl(domain, 128);
-    return (
-      <span className={boxBase} style={{ background: 'var(--muted)' }} aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt=""
-          width={px}
-          height={px}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="size-full object-cover"
-          onError={() => setStage((s) => (s === 'clearbit' ? 'google' : 'fallback'))}
-        />
-      </span>
-    );
-  }
+  const tryNext = React.useCallback(() => {
+    if (loadResolvedRef.current) return;
+    clearLoadTimeout();
+    setImageOk(false);
+    setAttempt((a) => (a < 1 ? a + 1 : 2));
+  }, [clearLoadTimeout]);
 
-  // Pure-CSS initials fallback — no network, always works.
-  // We pass both light + dark pastel values as CSS vars and let Tailwind
-  // swap them via the `.dark` class on the root.
+  const src = React.useMemo(() => {
+    if (!domain || attempt >= 2) return null;
+    return attempt === 0
+      ? clearbitLogoUrl(domain, Math.max(64, px * 4))
+      : googleFaviconUrl(domain, Math.max(64, px * 4));
+  }, [domain, attempt, px]);
+
+  // If the image never loads or onLoad never fires (hung / blocked), advance.
+  React.useEffect(() => {
+    if (!src) {
+      clearLoadTimeout();
+      return;
+    }
+    loadResolvedRef.current = false;
+    setImageOk(false);
+    clearLoadTimeout();
+    loadTimeoutRef.current = window.setTimeout(() => {
+      loadTimeoutRef.current = null;
+      if (!loadResolvedRef.current) tryNext();
+    }, LOAD_TIMEOUT_MS);
+    return () => clearLoadTimeout();
+  }, [src, tryNext, clearLoadTimeout]);
+
+  const onImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
+    if (w < MIN_LOGO_PX || h < MIN_LOGO_PX) {
+      tryNext();
+      return;
+    }
+    clearLoadTimeout();
+    loadResolvedRef.current = true;
+    setImageOk(true);
+  };
+
+  const onImgError = () => {
+    if (loadResolvedRef.current) return;
+    tryNext();
+  };
+
   return (
     <span
-      className={cn(boxBase, 'sub-logo-fallback')}
+      className={boxBase}
+      style={{ background: 'var(--muted)' }}
       aria-hidden
-      style={
-        {
-          '--sub-bg': c.bg,
-          '--sub-fg': c.fg,
-          '--sub-bg-dark': c.bgDark,
-          '--sub-fg-dark': c.fgDark,
-          background: 'var(--sub-bg)',
-          color: 'var(--sub-fg)',
-        } as React.CSSProperties
-      }
     >
-      <span className="relative">{initials(name)}</span>
+      {/* Base layer: initials always present so the slot never "disappears". */}
+      <span
+        className="absolute inset-0 flex items-center justify-center sub-logo-fallback"
+        style={
+          {
+            '--sub-bg': c.bg,
+            '--sub-fg': c.fg,
+            '--sub-bg-dark': c.bgDark,
+            '--sub-fg-dark': c.fgDark,
+            background: 'var(--sub-bg)',
+            color: 'var(--sub-fg)',
+            zIndex: 0,
+            opacity: imageOk ? 0 : 1,
+            transition: 'opacity 0.2s ease-out',
+          } as React.CSSProperties
+        }
+      >
+        <span className="relative">{initials(name)}</span>
+      </span>
+
+      {src ? (
+        /* Top layer: logo, contain-fit so different aspect ratios don't clip badly */
+        <span
+          className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--muted)] p-0.5"
+          style={{
+            opacity: imageOk ? 1 : 0,
+            pointerEvents: 'none',
+            transition: 'opacity 0.2s ease-out',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={`${domain}-${attempt}`}
+            src={src}
+            alt=""
+            width={px}
+            height={px}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : undefined}
+            decoding="async"
+            referrerPolicy="no-referrer"
+            className="size-full object-contain"
+            onLoad={onImgLoad}
+            onError={onImgError}
+          />
+        </span>
+      ) : null}
     </span>
   );
 }
