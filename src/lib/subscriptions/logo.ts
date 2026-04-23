@@ -116,3 +116,13 @@ export function clearbitLogoUrl(domain: string, size = 128) {
 export function googleFaviconUrl(domain: string, size = 128) {
   return `https://www.google.com/s2/favicons?domain=${domain}&sz=${size}`;
 }
+
+/**
+ * First-party logo proxy URL. Using our own `/api/logo` avoids third-party
+ * tracking blockers from breaking logos in the UI.
+ */
+export function logoProxyUrl(domain: string, size = 128) {
+  const s = Math.max(16, Math.min(256, Math.round(size)));
+  const d = encodeURIComponent(domain);
+  return `/api/logo?domain=${d}&size=${s}`;
+}

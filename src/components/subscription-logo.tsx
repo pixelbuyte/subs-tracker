@@ -7,6 +7,7 @@ import {
   deriveDomain,
   googleFaviconUrl,
   guessDomainFromName,
+  logoProxyUrl,
 } from '@/lib/subscriptions/logo';
 import { cn } from '@/lib/utils';
 
@@ -75,7 +76,7 @@ export function SubscriptionLogo({
 
   const px = imgSizePx[size];
 
-  /** 0 = Clearbit, 1 = Google favicon. >=2 = no more network attempts. */
+  /** Attempts are kept so we can fall back to initials after timeout. */
   const [attempt, setAttempt] = React.useState(0);
   const [imageOk, setImageOk] = React.useState(false);
   const loadResolvedRef = React.useRef(false);
@@ -119,9 +120,8 @@ export function SubscriptionLogo({
 
   const src = React.useMemo(() => {
     if (!domain || attempt >= 2) return null;
-    return attempt === 0
-      ? clearbitLogoUrl(domain, Math.max(64, px * 4))
-      : googleFaviconUrl(domain, Math.max(64, px * 4));
+    // Use first-party proxy to avoid third-party blockers breaking logos.
+    return logoProxyUrl(domain, Math.max(64, px * 4));
   }, [domain, attempt, px]);
 
   // If the image never loads or onLoad never fires (hung / blocked), advance.
