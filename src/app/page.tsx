@@ -16,6 +16,9 @@ import {
   Zap,
 } from 'lucide-react';
 
+import { Scroll3D } from '@/components/fx/scroll-3d';
+import { TiltCard } from '@/components/fx/tilt-card';
+import { SubscriptionLogo } from '@/components/subscription-logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 
@@ -69,7 +72,8 @@ export default function Home() {
         </div>
 
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
+          <Scroll3D intensity={0.9}>
+            <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="flex flex-col gap-6">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--border)] bg-card px-3 py-1 text-xs font-medium text-[var(--muted-foreground)]">
                 <Sparkles className="size-3.5 text-amber-500" />
@@ -119,216 +123,232 @@ export default function Home() {
             {/* Dashboard preview */}
             <DashboardPreview />
           </div>
+          </Scroll3D>
         </div>
       </section>
 
       {/* ── Stats strip ────────────────────────────────────────── */}
       <section className="border-y border-[var(--border)] bg-muted/40">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-8 sm:grid-cols-4 sm:px-6">
-          <Stat label="Average person has" value="12+" sub="active subscriptions" />
-          <Stat label="Yearly overspend" value="$273" sub="on forgotten subs (Chase, 2024)" />
-          <Stat label="Free tier" value="5" sub="subscriptions tracked" />
-          <Stat label="Takes" value="2 min" sub="to set up" />
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+          <Scroll3D intensity={0.6}>
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+              <Stat label="Average person has" value="12+" sub="active subscriptions" />
+              <Stat label="Yearly overspend" value="$273" sub="on forgotten subs (Chase, 2024)" />
+              <Stat label="Free tier" value="5" sub="subscriptions tracked" />
+              <Stat label="Takes" value="2 min" sub="to set up" />
+            </div>
+          </Scroll3D>
         </div>
       </section>
 
       {/* ── Features ───────────────────────────────────────────── */}
       <section id="features" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mb-12 max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Everything you need.
-            <br />
-            Nothing you don&apos;t.
-          </h2>
-          <p className="mt-3 text-[var(--muted-foreground)]">
-            Built to answer one question: <em>&ldquo;Where is my money going every month?&rdquo;</em>
-          </p>
-        </div>
+        <Scroll3D intensity={0.85}>
+          <div className="mb-12 max-w-2xl">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+              Everything you need.
+              <br />
+              Nothing you don&apos;t.
+            </h2>
+            <p className="mt-3 text-[var(--muted-foreground)]">
+              Built to answer one question:{' '}
+              <em>&ldquo;Where is my money going every month?&rdquo;</em>
+            </p>
+          </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Feature
-            icon={<Wallet className="size-5" />}
-            title="Monthly &amp; yearly totals"
-            body="See exactly what you're spending. Weekly, monthly, quarterly, yearly — all normalized."
-            accent="from-indigo-500/20 to-indigo-500/0"
-          />
-          <Feature
-            icon={<BellRing className="size-5" />}
-            title="Renewal reminders"
-            body="Email you 7, 3, 1, and 0 days before a renewal. Cancel before you're charged."
-            accent="from-amber-500/20 to-amber-500/0"
-          />
-          <Feature
-            icon={<ChartPie className="size-5" />}
-            title="Category breakdown"
-            body="Entertainment, software, fitness, food — instantly see where the spend actually goes."
-            accent="from-emerald-500/20 to-emerald-500/0"
-          />
-          <Feature
-            icon={<Search className="size-5" />}
-            title="Search &amp; filter"
-            body="Filter by status, category, or search by name. Find anything in seconds."
-            accent="from-cyan-500/20 to-cyan-500/0"
-          />
-          <Feature
-            icon={<Download className="size-5" />}
-            title="CSV export"
-            body="Own your data. Export everything anytime, no lock-in, no weird format."
-            accent="from-fuchsia-500/20 to-fuchsia-500/0"
-          />
-          <Feature
-            icon={<Moon className="size-5" />}
-            title="Dark mode + mobile"
-            body="Looks great on a laptop at night and on your phone in the morning. Installable as a PWA."
-            accent="from-slate-500/20 to-slate-500/0"
-          />
-        </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Feature
+              icon={<Wallet className="size-5" />}
+              title="Monthly &amp; yearly totals"
+              body="See exactly what you're spending. Weekly, monthly, quarterly, yearly — all normalized."
+              accent="from-indigo-500/20 to-indigo-500/0"
+            />
+            <Feature
+              icon={<BellRing className="size-5" />}
+              title="Renewal reminders"
+              body="Email you 7, 3, 1, and 0 days before a renewal. Cancel before you're charged."
+              accent="from-amber-500/20 to-amber-500/0"
+            />
+            <Feature
+              icon={<ChartPie className="size-5" />}
+              title="Category breakdown"
+              body="Entertainment, software, fitness, food — instantly see where the spend actually goes."
+              accent="from-emerald-500/20 to-emerald-500/0"
+            />
+            <Feature
+              icon={<Search className="size-5" />}
+              title="Search &amp; filter"
+              body="Filter by status, category, or search by name. Find anything in seconds."
+              accent="from-cyan-500/20 to-cyan-500/0"
+            />
+            <Feature
+              icon={<Download className="size-5" />}
+              title="CSV export"
+              body="Own your data. Export everything anytime, no lock-in, no weird format."
+              accent="from-fuchsia-500/20 to-fuchsia-500/0"
+            />
+            <Feature
+              icon={<Moon className="size-5" />}
+              title="Dark mode + mobile"
+              body="Looks great on a laptop at night and on your phone in the morning. Installable as a PWA."
+              accent="from-slate-500/20 to-slate-500/0"
+            />
+          </div>
+        </Scroll3D>
       </section>
 
       {/* ── How it works ──────────────────────────────────────── */}
       <section id="how" className="border-y border-[var(--border)] bg-muted/40">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <div className="mb-12 max-w-2xl">
-            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-              Set it up in two minutes.
-            </h2>
-            <p className="mt-3 text-[var(--muted-foreground)]">
-              No bank login. No Plaid. No spreadsheets. Just type &amp; go.
-            </p>
-          </div>
+          <Scroll3D intensity={0.8}>
+            <div className="mb-12 max-w-2xl">
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                Set it up in two minutes.
+              </h2>
+              <p className="mt-3 text-[var(--muted-foreground)]">
+                No bank login. No Plaid. No spreadsheets. Just type &amp; go.
+              </p>
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-3">
-            <Step
-              num="01"
-              icon={<Zap className="size-5" />}
-              title="Sign up free"
-              body="Email or Google — takes 10 seconds. No credit card. No bank connection."
-            />
-            <Step
-              num="02"
-              icon={<Calendar className="size-5" />}
-              title="Add your subs"
-              body="Name, price, cycle, renewal date. 30 seconds each. You'll remember the top 5 off the top of your head."
-            />
-            <Step
-              num="03"
-              icon={<TrendingDown className="size-5" />}
-              title="Save money"
-              body="Dashboard shows your real monthly burn. Get reminder emails before charges. Cancel the junk."
-            />
-          </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <Step
+                num="01"
+                icon={<Zap className="size-5" />}
+                title="Sign up free"
+                body="Email or Google — takes 10 seconds. No credit card. No bank connection."
+              />
+              <Step
+                num="02"
+                icon={<Calendar className="size-5" />}
+                title="Add your subs"
+                body="Name, price, cycle, renewal date. 30 seconds each. You'll remember the top 5 off the top of your head."
+              />
+              <Step
+                num="03"
+                icon={<TrendingDown className="size-5" />}
+                title="Save money"
+                body="Dashboard shows your real monthly burn. Get reminder emails before charges. Cancel the junk."
+              />
+            </div>
+          </Scroll3D>
         </div>
       </section>
 
       {/* ── Pricing ────────────────────────────────────────────── */}
       <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="mb-10 max-w-2xl">
-          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Simple pricing.</h2>
-          <p className="mt-3 text-[var(--muted-foreground)]">
-            Start free. Upgrade when it pays for itself.
+        <Scroll3D intensity={0.9}>
+          <div className="mb-10 max-w-2xl">
+            <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Simple pricing.</h2>
+            <p className="mt-3 text-[var(--muted-foreground)]">
+              Start free. Upgrade when it pays for itself.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <PricingCard
+              name="Free"
+              price="$0"
+              tagline="Perfect to start"
+              features={[
+                'Up to 5 subscriptions',
+                'Monthly & yearly totals',
+                'Category breakdown',
+                'CSV export',
+                'Light & dark mode',
+              ]}
+              cta={
+                <Link href="/signup" className="w-full">
+                  <Button className="w-full" variant="secondary">
+                    Get started free
+                  </Button>
+                </Link>
+              }
+            />
+            <PricingCard
+              name="Pro"
+              price="$8.99"
+              period="/ month"
+              tagline="The upgrade that saves its own price"
+              highlighted
+              features={[
+                'Unlimited subscriptions',
+                'Email reminders (7/3/1/0 days)',
+                'Trial end-date tracking',
+                'Price history & insights',
+                'Priority support',
+              ]}
+              cta={
+                <Link href="/signup?upgrade=1" className="w-full">
+                  <Button className="w-full">Start free, upgrade anytime</Button>
+                </Link>
+              }
+            />
+          </div>
+
+          <p className="mt-6 text-center text-xs text-[var(--muted-foreground)]">
+            Cancel anytime. One forgotten subscription typically costs more than a year of Pro.
           </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <PricingCard
-            name="Free"
-            price="$0"
-            tagline="Perfect to start"
-            features={[
-              'Up to 5 subscriptions',
-              'Monthly & yearly totals',
-              'Category breakdown',
-              'CSV export',
-              'Light & dark mode',
-            ]}
-            cta={
-              <Link href="/signup" className="w-full">
-                <Button className="w-full" variant="secondary">
-                  Get started free
-                </Button>
-              </Link>
-            }
-          />
-          <PricingCard
-            name="Pro"
-            price="$8.99"
-            period="/ month"
-            tagline="The upgrade that saves its own price"
-            highlighted
-            features={[
-              'Unlimited subscriptions',
-              'Email reminders (7/3/1/0 days)',
-              'Trial end-date tracking',
-              'Price history & insights',
-              'Priority support',
-            ]}
-            cta={
-              <Link href="/signup?upgrade=1" className="w-full">
-                <Button className="w-full">Start free, upgrade anytime</Button>
-              </Link>
-            }
-          />
-        </div>
-
-        <p className="mt-6 text-center text-xs text-[var(--muted-foreground)]">
-          Cancel anytime. One forgotten subscription typically costs more than a year of Pro.
-        </p>
+        </Scroll3D>
       </section>
 
       {/* ── FAQ ────────────────────────────────────────────────── */}
       <section id="faq" className="border-t border-[var(--border)] bg-muted/40">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-24">
-          <h2 className="mb-10 text-3xl font-semibold tracking-tight sm:text-4xl">
-            Frequently asked
-          </h2>
-          <div className="grid gap-3">
-            <FAQ
-              q="Do I have to connect my bank account?"
-              a="Nope. This is deliberate. You enter subscriptions manually — it's faster and safer than wrestling with bank APIs, and you stay in full control of your data."
-            />
-            <FAQ
-              q="Is my data private?"
-              a="Yes. Stored in Supabase (Postgres) with per-user row-level security. Only you can read your own subscriptions. You can export or delete anytime."
-            />
-            <FAQ
-              q="Will I actually remember to add things?"
-              a="You'll remember 80% off the top of your head in 2 minutes. For the rest, scan your last credit card statement once — you'll find every recurring charge in minutes."
-            />
-            <FAQ
-              q="Why is there a paid tier?"
-              a="To cover servers + email costs honestly. $8.99/mo is designed to pay for itself the first time a reminder saves you from a forgotten charge."
-            />
-            <FAQ
-              q="Can I cancel / export my data?"
-              a="Always. One-click CSV export. Delete your account and all data is wiped."
-            />
-          </div>
+          <Scroll3D intensity={0.75}>
+            <h2 className="mb-10 text-3xl font-semibold tracking-tight sm:text-4xl">
+              Frequently asked
+            </h2>
+            <div className="grid gap-3">
+              <FAQ
+                q="Do I have to connect my bank account?"
+                a="Nope. This is deliberate. You enter subscriptions manually — it's faster and safer than wrestling with bank APIs, and you stay in full control of your data."
+              />
+              <FAQ
+                q="Is my data private?"
+                a="Yes. Stored in Supabase (Postgres) with per-user row-level security. Only you can read your own subscriptions. You can export or delete anytime."
+              />
+              <FAQ
+                q="Will I actually remember to add things?"
+                a="You'll remember 80% off the top of your head in 2 minutes. For the rest, scan your last credit card statement once — you'll find every recurring charge in minutes."
+              />
+              <FAQ
+                q="Why is there a paid tier?"
+                a="To cover servers + email costs honestly. $8.99/mo is designed to pay for itself the first time a reminder saves you from a forgotten charge."
+              />
+              <FAQ
+                q="Can I cancel / export my data?"
+                a="Always. One-click CSV export. Delete your account and all data is wiped."
+              />
+            </div>
+          </Scroll3D>
         </div>
       </section>
 
       {/* ── CTA ────────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-        <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-card p-8 sm:p-12">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-fuchsia-500/10"
-          />
-          <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
-            <div>
-              <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                Take back control of your recurring spend.
-              </h2>
-              <p className="mt-2 text-[var(--muted-foreground)]">
-                Free forever for up to 5 subscriptions. Sign up in 10 seconds.
-              </p>
+        <Scroll3D intensity={1}>
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--border)] bg-card p-8 sm:p-12">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-fuchsia-500/10"
+            />
+            <div className="relative flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                  Take back control of your recurring spend.
+                </h2>
+                <p className="mt-2 text-[var(--muted-foreground)]">
+                  Free forever for up to 5 subscriptions. Sign up in 10 seconds.
+                </p>
+              </div>
+              <Link href="/signup">
+                <Button size="lg">
+                  Start free <ArrowRight className="size-4" />
+                </Button>
+              </Link>
             </div>
-            <Link href="/signup">
-              <Button size="lg">
-                Start free <ArrowRight className="size-4" />
-              </Button>
-            </Link>
           </div>
-        </div>
+        </Scroll3D>
       </section>
 
       {/* ── Footer ─────────────────────────────────────────────── */}
@@ -414,19 +434,21 @@ function Feature({
   accent: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-card p-5 transition hover:shadow-sm">
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-gradient-to-br ${accent} opacity-70 blur-2xl`}
-      />
-      <div className="relative flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-background text-foreground">
-          {icon}
+    <TiltCard className="group">
+      <div className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-card p-5 transition hover:shadow-sm">
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-gradient-to-br ${accent} opacity-70 blur-2xl`}
+        />
+        <div className="relative flex items-center gap-3">
+          <div className="flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-background text-foreground">
+            {icon}
+          </div>
+          <h3 className="text-[15px] font-semibold">{title}</h3>
         </div>
-        <h3 className="text-[15px] font-semibold">{title}</h3>
+        <p className="relative mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{body}</p>
       </div>
-      <p className="relative mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{body}</p>
-    </div>
+    </TiltCard>
   );
 }
 
@@ -442,16 +464,18 @@ function Step({
   body: string;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-card p-5">
-      <div className="flex items-center justify-between">
-        <div className="flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-background">
-          {icon}
+    <TiltCard>
+      <div className="rounded-xl border border-[var(--border)] bg-card p-5">
+        <div className="flex items-center justify-between">
+          <div className="flex size-9 items-center justify-center rounded-lg border border-[var(--border)] bg-background">
+            {icon}
+          </div>
+          <span className="text-xs font-mono text-[var(--muted-foreground)]">{num}</span>
         </div>
-        <span className="text-xs font-mono text-[var(--muted-foreground)]">{num}</span>
+        <h3 className="mt-4 font-semibold">{title}</h3>
+        <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">{body}</p>
       </div>
-      <h3 className="mt-4 font-semibold">{title}</h3>
-      <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">{body}</p>
-    </div>
+    </TiltCard>
   );
 }
 
@@ -473,46 +497,50 @@ function PricingCard({
   highlighted?: boolean;
 }) {
   return (
-    <div
-      className={`relative rounded-2xl border p-6 ${
-        highlighted
-          ? 'border-transparent bg-gradient-to-b from-indigo-500/10 to-fuchsia-500/5 ring-1 ring-indigo-500/40'
-          : 'border-[var(--border)] bg-card'
-      }`}
-    >
-      {highlighted && (
-        <span className="absolute right-5 top-5 rounded-full bg-indigo-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
-          Pro
-        </span>
-      )}
-      <div className="text-sm font-medium text-[var(--muted-foreground)]">{name}</div>
-      <div className="mt-2 flex items-baseline gap-1">
-        <span className="text-4xl font-semibold tracking-tight">{price}</span>
-        {period ? <span className="text-sm text-[var(--muted-foreground)]">{period}</span> : null}
+    <TiltCard>
+      <div
+        className={`relative rounded-2xl border p-6 ${
+          highlighted
+            ? 'border-transparent bg-gradient-to-b from-indigo-500/10 to-fuchsia-500/5 ring-1 ring-indigo-500/40'
+            : 'border-[var(--border)] bg-card'
+        }`}
+      >
+        {highlighted && (
+          <span className="absolute right-5 top-5 rounded-full bg-indigo-500 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-white">
+            Pro
+          </span>
+        )}
+        <div className="text-sm font-medium text-[var(--muted-foreground)]">{name}</div>
+        <div className="mt-2 flex items-baseline gap-1">
+          <span className="text-4xl font-semibold tracking-tight">{price}</span>
+          {period ? <span className="text-sm text-[var(--muted-foreground)]">{period}</span> : null}
+        </div>
+        <p className="mt-1 text-sm text-[var(--muted-foreground)]">{tagline}</p>
+        <ul className="mt-5 grid gap-2 text-sm">
+          {features.map((f) => (
+            <li key={f} className="flex items-start gap-2">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
+              <span>{f}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-6">{cta}</div>
       </div>
-      <p className="mt-1 text-sm text-[var(--muted-foreground)]">{tagline}</p>
-      <ul className="mt-5 grid gap-2 text-sm">
-        {features.map((f) => (
-          <li key={f} className="flex items-start gap-2">
-            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
-            <span>{f}</span>
-          </li>
-        ))}
-      </ul>
-      <div className="mt-6">{cta}</div>
-    </div>
+    </TiltCard>
   );
 }
 
 function FAQ({ q, a }: { q: string; a: string }) {
   return (
-    <details className="group rounded-lg border border-[var(--border)] bg-card p-4 open:shadow-sm">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
-        <span>{q}</span>
-        <span className="text-[var(--muted-foreground)] transition group-open:rotate-45">+</span>
-      </summary>
-      <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{a}</p>
-    </details>
+    <TiltCard>
+      <details className="group rounded-lg border border-[var(--border)] bg-card p-4 open:shadow-sm">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium">
+          <span>{q}</span>
+          <span className="text-[var(--muted-foreground)] transition group-open:rotate-45">+</span>
+        </summary>
+        <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">{a}</p>
+      </details>
+    </TiltCard>
   );
 }
 
@@ -522,7 +550,7 @@ function DashboardPreview() {
   const rows = [
     {
       name: 'Netflix',
-      logo: '/logos/netflix.svg',
+      domain: 'netflix.com',
       price: '$15.99',
       cycle: 'monthly',
       when: 'Renews in 3 days',
@@ -530,7 +558,7 @@ function DashboardPreview() {
     },
     {
       name: 'Spotify',
-      logo: '/logos/spotify.svg',
+      domain: 'spotify.com',
       price: '$9.99',
       cycle: 'monthly',
       when: 'Renews in 12 days',
@@ -538,7 +566,7 @@ function DashboardPreview() {
     },
     {
       name: 'iCloud+',
-      logo: '/logos/icloud.svg',
+      domain: 'icloud.com',
       price: '$2.99',
       cycle: 'monthly',
       when: 'Renews in 18 days',
@@ -546,7 +574,7 @@ function DashboardPreview() {
     },
     {
       name: 'NYT',
-      logo: '/logos/nyt.svg',
+      domain: 'nytimes.com',
       price: '$17.00',
       cycle: 'monthly',
       when: 'Renews tomorrow',
@@ -560,80 +588,70 @@ function DashboardPreview() {
         aria-hidden
         className="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-transparent to-fuchsia-500/10 blur-2xl"
       />
-      <div className="rotate-[0.3deg] rounded-2xl border border-[var(--border)] bg-card p-4 shadow-xl">
-        {/* fake window chrome */}
-        <div className="flex items-center gap-1.5 px-1 pb-3">
-          <span className="size-2.5 rounded-full bg-red-400/80" />
-          <span className="size-2.5 rounded-full bg-amber-400/80" />
-          <span className="size-2.5 rounded-full bg-emerald-400/80" />
-          <span className="ml-3 text-xs text-[var(--muted-foreground)]">
-            subscription-control-center
-          </span>
-        </div>
-
-        {/* totals row */}
-        <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/60 p-3">
-          <MockStat label="Monthly" value="$84.21" />
-          <MockStat label="Yearly" value="$1,010.52" />
-          <MockStat label="Upcoming (7d)" value="2" accent />
-        </div>
-
-        {/* table */}
-        <div className="mt-3 rounded-lg border border-[var(--border)]">
-          <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)]">
-            <div className="flex items-center gap-2">
-              <Filter className="size-3.5" /> All · Active
-            </div>
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="size-3.5 text-emerald-500" /> RLS protected
-            </div>
+      <TiltCard maxTiltDeg={14}>
+        <div className="rotate-[0.3deg] rounded-2xl border border-[var(--border)] bg-card p-4 shadow-xl">
+          {/* fake window chrome */}
+          <div className="flex items-center gap-1.5 px-1 pb-3">
+            <span className="size-2.5 rounded-full bg-red-400/80" />
+            <span className="size-2.5 rounded-full bg-amber-400/80" />
+            <span className="size-2.5 rounded-full bg-emerald-400/80" />
+            <span className="ml-3 text-xs text-[var(--muted-foreground)]">
+              subscription-control-center
+            </span>
           </div>
-          <ul className="divide-y divide-[var(--border)]">
-            {rows.map((r) => (
-              <li key={r.name} className="flex items-center justify-between px-3 py-2.5 text-sm">
+
+          {/* totals row */}
+          <div className="grid grid-cols-3 gap-2 rounded-lg bg-muted/60 p-3">
+            <MockStat label="Monthly" value="$84.21" />
+            <MockStat label="Yearly" value="$1,010.52" />
+            <MockStat label="Upcoming (7d)" value="2" accent />
+          </div>
+
+          {/* table */}
+          <div className="mt-3 rounded-lg border border-[var(--border)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2 text-xs text-[var(--muted-foreground)]">
+              <div className="flex items-center gap-2">
+                <Filter className="size-3.5" /> All · Active
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="size-3.5 text-emerald-500" /> RLS protected
+              </div>
+            </div>
+            <ul className="divide-y divide-[var(--border)]">
+              {rows.map((r) => (
+                <li key={r.name} className="flex items-center justify-between px-3 py-2.5 text-sm">
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`relative inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md ${
-                      r.accent === 'amber'
-                        ? 'ring-1 ring-amber-500/30'
-                        : r.accent === 'red'
-                          ? 'ring-1 ring-red-500/30'
-                          : ''
-                    }`}
-                    aria-hidden
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={r.logo}
-                      alt=""
-                      width={32}
-                      height={32}
-                      className="size-full object-cover"
-                    />
-                  </span>
-                  <div>
-                    <div className="font-medium">{r.name}</div>
-                    <div className="text-xs text-[var(--muted-foreground)]">
-                      {r.price} · {r.cycle}
+                  <SubscriptionLogo
+                    name={r.name}
+                    websiteUrl={r.domain}
+                    size="md"
+                    priority
+                    tone={r.accent === 'amber' ? 'amber' : r.accent === 'red' ? 'red' : 'default'}
+                  />
+                    <div>
+                      <div className="font-medium">{r.name}</div>
+                      <div className="text-xs text-[var(--muted-foreground)]">
+                        {r.price} · {r.cycle}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <span
-                  className={`rounded-full px-2 py-0.5 text-xs ${
-                    r.accent === 'amber'
-                      ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
-                      : r.accent === 'red'
-                        ? 'bg-red-500/15 text-red-700 dark:text-red-400'
-                        : 'bg-muted text-[var(--muted-foreground)]'
-                  }`}
-                >
-                  {r.when}
-                </span>
-              </li>
-            ))}
-          </ul>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs ${
+                      r.accent === 'amber'
+                        ? 'bg-amber-500/15 text-amber-700 dark:text-amber-400'
+                        : r.accent === 'red'
+                          ? 'bg-red-500/15 text-red-700 dark:text-red-400'
+                          : 'bg-muted text-[var(--muted-foreground)]'
+                    }`}
+                  >
+                    {r.when}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+      </TiltCard>
     </div>
   );
 }

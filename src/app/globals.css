@@ -41,6 +41,131 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* ── Ambient + 3D UI effects ────────────────────────────────── */
+
+.fx-grid {
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.9), transparent 70%);
+}
+
+.dark .fx-grid {
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+}
+
+.fx-blob {
+  filter: blur(44px);
+  opacity: 0.6;
+  animation: fx-float 14s ease-in-out infinite;
+  will-change: transform;
+}
+
+.fx-blob-a {
+  background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.45), transparent 55%),
+    radial-gradient(circle at 70% 70%, rgba(236, 72, 153, 0.35), transparent 60%);
+}
+
+.fx-blob-b {
+  animation-duration: 18s;
+  background: radial-gradient(circle at 40% 35%, rgba(34, 211, 238, 0.35), transparent 60%),
+    radial-gradient(circle at 75% 65%, rgba(99, 102, 241, 0.28), transparent 65%);
+}
+
+.fx-blob-c {
+  animation-duration: 22s;
+  background: radial-gradient(circle at 40% 50%, rgba(236, 72, 153, 0.25), transparent 60%),
+    radial-gradient(circle at 60% 45%, rgba(34, 211, 238, 0.22), transparent 62%);
+}
+
+.fx-tilt {
+  --tilt-rx: 0deg;
+  --tilt-ry: 0deg;
+  --tilt-mx: 50%;
+  --tilt-my: 50%;
+  perspective: 900px;
+  transform-style: preserve-3d;
+}
+
+.fx-tilt > * {
+  transform: rotateX(var(--tilt-rx)) rotateY(var(--tilt-ry)) translateZ(0);
+  transform-style: preserve-3d;
+  transition: transform 180ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  will-change: transform;
+}
+
+.fx-tilt > *::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    320px circle at var(--tilt-mx) var(--tilt-my),
+    rgba(99, 102, 241, 0.18),
+    rgba(236, 72, 153, 0.12),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.fx-tilt:hover > * {
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.14),
+    0 2px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.fx-tilt:hover > *::before {
+  opacity: 1;
+}
+
+/* Scroll-linked 3D */
+.fx-scroll3d {
+  --s3d-rx: 0deg;
+  --s3d-ry: 0deg;
+  --s3d-ty: 0px;
+  --s3d-tz: 0px;
+  perspective: 1100px;
+  transform-style: preserve-3d;
+}
+
+.fx-scroll3d > * {
+  transform: translate3d(0, var(--s3d-ty), var(--s3d-tz)) rotateX(var(--s3d-rx))
+    rotateY(var(--s3d-ry));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+@keyframes fx-float {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(18px, 26px, 0) scale(1.03);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-blob {
+    animation: none;
+  }
+  .fx-tilt > * {
+    transition: none;
+    transform: none !important;
+  }
+  .fx-tilt > *::before {
+    transition: none;
+  }
+  .fx-scroll3d > * {
+    transform: none !important;
+  }
+}
+
 /* Subscription logo initials-fallback: swap pastel pair in dark mode. */
 .dark .sub-logo-fallback {
   background: var(--sub-bg-dark) !important;
