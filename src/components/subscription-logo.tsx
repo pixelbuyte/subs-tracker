@@ -3,9 +3,7 @@
 import * as React from 'react';
 
 import {
-  clearbitLogoUrl,
   deriveDomain,
-  googleFaviconUrl,
   guessDomainFromName,
   logoProxyUrl,
 } from '@/lib/subscriptions/logo';
@@ -24,9 +22,6 @@ const imgSizePx: Record<Size, number> = {
   md: 32,
   lg: 40,
 };
-
-/** Reject 1×1/blank/transparent "success" responses some CDNs return. */
-const MIN_LOGO_PX = 2;
 
 const LOAD_TIMEOUT_MS = 5000;
 
@@ -76,8 +71,6 @@ export function SubscriptionLogo({
 
   const px = imgSizePx[size];
 
-  /** Attempts are kept so we can fall back to initials after timeout. */
-  const [attempt, setAttempt] = React.useState(0);
   const [imageOk, setImageOk] = React.useState(false);
   const loadResolvedRef = React.useRef(false);
   const loadTimeoutRef = React.useRef<number | null>(null);
@@ -91,7 +84,6 @@ export function SubscriptionLogo({
   }, []);
 
   React.useEffect(() => {
-    setAttempt(0);
     setImageOk(false);
     loadResolvedRef.current = false;
   }, [domain]);
@@ -111,18 +103,11 @@ export function SubscriptionLogo({
     className,
   );
 
-  const tryNext = React.useCallback(() => {
-    if (loadResolvedRef.current) return;
-    clearLoadTimeout();
-    setImageOk(false);
-    setAttempt((a) => (a < 1 ? a + 1 : 2));
-  }, [clearLoadTimeout]);
-
   const src = React.useMemo(() => {
-    if (!domain || attempt >= 2) return null;
+    if (!domain) return null;
     // Use first-party proxy to avoid third-party blockers breaking logos.
     return logoProxyUrl(domain, Math.max(64, px * 4));
-  }, [domain, attempt, px]);
+  }, [domain, px]);
 
   // If the image never loads or onLoad never fires (hung / blocked), advance.
   React.useEffect(() => {
@@ -135,17 +120,15 @@ export function SubscriptionLogo({
     clearLoadTimeout();
     loadTimeoutRef.current = window.setTimeout(() => {
       loadTimeoutRef.current = null;
-      if (!loadResolvedRef.current) tryNext();
+      if (!loadResolvedRef.current) {
+        // Stop trying this render; keep initials visible.
+        setImageOk(false);
+      }
     }, LOAD_TIMEOUT_MS);
     return () => clearLoadTimeout();
-  }, [src, tryNext, clearLoadTimeout]);
+  }, [src, clearLoadTimeout]);
 
   const onImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
-    if (w < MIN_LOGO_PX || h < MIN_LOGO_PX) {
-      tryNext();
-      return;
-    }
     clearLoadTimeout();
     loadResolvedRef.current = true;
     setImageOk(true);
@@ -153,7 +136,8 @@ export function SubscriptionLogo({
 
   const onImgError = () => {
     if (loadResolvedRef.current) return;
-    tryNext();
+    clearLoadTimeout();
+    setImageOk(false);
   };
 
   return (
@@ -194,7 +178,7 @@ export function SubscriptionLogo({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            key={`${domain}-${attempt}`}
+            key={`${domain}`}
             src={src}
             alt=""
             width={px}

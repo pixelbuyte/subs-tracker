@@ -33,6 +33,16 @@ async function fetchImage(url: string) {
   return { buf, contentType };
 }
 
+function duckDuckGoFaviconUrl(domain: string) {
+  // Very reliable favicon proxy (1st-party-ish). Returns .ico or png.
+  return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
+}
+
+function unavatarUrl(domain: string) {
+  // Another reliable icon source for domains.
+  return `https://unavatar.io/${domain}?fallback=false`;
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const input = searchParams.get('domain');
@@ -45,15 +55,19 @@ export async function GET(req: Request) {
 
   const size = Math.max(16, Math.min(MAX_SIZE, Number(sizeParam ?? '128') || 128));
 
-  // Try Clearbit first, then Google favicon.
-  const clearbit = await fetchImage(clearbitLogoUrl(domain, size));
-  if (clearbit) {
-    return new NextResponse(clearbit.buf, { status: 200, headers: okCacheHeaders(clearbit.contentType) });
-  }
+  // Try multiple sources in order of quality/reliability.
+  const sources = [
+    clearbitLogoUrl(domain, size),
+    googleFaviconUrl(domain, size),
+    duckDuckGoFaviconUrl(domain),
+    unavatarUrl(domain),
+  ];
 
-  const google = await fetchImage(googleFaviconUrl(domain, size));
-  if (google) {
-    return new NextResponse(google.buf, { status: 200, headers: okCacheHeaders(google.contentType) });
+  for (const url of sources) {
+    const img = await fetchImage(url);
+    if (img) {
+      return new NextResponse(img.buf, { status: 200, headers: okCacheHeaders(img.contentType) });
+    }
   }
 
   return NextResponse.json({ error: 'Not found' }, { status: 404 });
