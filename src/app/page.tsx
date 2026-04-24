@@ -16,7 +16,6 @@ import {
   Zap,
 } from 'lucide-react';
 
-import { SubscriptionLogo } from '@/components/subscription-logo';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 
@@ -523,7 +522,7 @@ function DashboardPreview() {
   const rows = [
     {
       name: 'Netflix',
-      domain: 'netflix.com',
+      logo: '/logos/netflix.svg',
       price: '$15.99',
       cycle: 'monthly',
       when: 'Renews in 3 days',
@@ -531,7 +530,7 @@ function DashboardPreview() {
     },
     {
       name: 'Spotify',
-      domain: 'spotify.com',
+      logo: '/logos/spotify.svg',
       price: '$9.99',
       cycle: 'monthly',
       when: 'Renews in 12 days',
@@ -539,7 +538,7 @@ function DashboardPreview() {
     },
     {
       name: 'iCloud+',
-      domain: 'icloud.com',
+      logo: '/logos/icloud.svg',
       price: '$2.99',
       cycle: 'monthly',
       when: 'Renews in 18 days',
@@ -547,7 +546,7 @@ function DashboardPreview() {
     },
     {
       name: 'NYT',
-      domain: 'nytimes.com',
+      logo: '/logos/nyt.svg',
       price: '$17.00',
       cycle: 'monthly',
       when: 'Renews tomorrow',
@@ -593,13 +592,25 @@ function DashboardPreview() {
             {rows.map((r) => (
               <li key={r.name} className="flex items-center justify-between px-3 py-2.5 text-sm">
                 <div className="flex items-center gap-3">
-                  <SubscriptionLogo
-                    name={r.name}
-                    websiteUrl={r.domain}
-                    size="md"
-                    priority
-                    tone={r.accent === 'amber' ? 'amber' : r.accent === 'red' ? 'red' : 'default'}
-                  />
+                  <span
+                    className={`relative inline-flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-md ${
+                      r.accent === 'amber'
+                        ? 'ring-1 ring-amber-500/30'
+                        : r.accent === 'red'
+                          ? 'ring-1 ring-red-500/30'
+                          : ''
+                    }`}
+                    aria-hidden
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={r.logo}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="size-full object-cover"
+                    />
+                  </span>
                   <div>
                     <div className="font-medium">{r.name}</div>
                     <div className="text-xs text-[var(--muted-foreground)]">
