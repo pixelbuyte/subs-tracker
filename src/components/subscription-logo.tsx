@@ -23,7 +23,7 @@ const imgSizePx: Record<Size, number> = {
   lg: 40,
 };
 
-const LOAD_TIMEOUT_MS = 5000;
+const LOAD_TIMEOUT_MS = 4000;
 
 function initials(name: string) {
   const letters = name
@@ -46,6 +46,22 @@ function colorFromName(name: string) {
     bgDark: `hsl(${h} 35% 18%)`,
     fgDark: `hsl(${h} 80% 78%)`,
   };
+}
+
+/**
+ * Build an ordered list of candidate logo URLs for a domain.
+ * We go first-party → Google → DuckDuckGo → Clearbit so that at
+ * least one source works even if the /api/logo proxy isn't deployed
+ * yet or an ad blocker blocks a specific third-party host.
+ */
+function candidateUrls(domain: string, sizePx: number): string[] {
+  const targetSize = Math.max(64, sizePx * 4);
+  return [
+    logoProxyUrl(domain, targetSize),
+    `https://www.google.com/s2/favicons?domain=${domain}&sz=${targetSize}`,
+    `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+    `https://logo.clearbit.com/${domain}?size=${targetSize}`,
+  ];
 }
 
 export function SubscriptionLogo({
@@ -71,8 +87,13 @@ export function SubscriptionLogo({
 
   const px = imgSizePx[size];
 
+  const sources = React.useMemo(
+    () => (domain ? candidateUrls(domain, px) : []),
+    [domain, px],
+  );
+
+  const [sourceIdx, setSourceIdx] = React.useState(0);
   const [imageOk, setImageOk] = React.useState(false);
-  const loadResolvedRef = React.useRef(false);
   const loadTimeoutRef = React.useRef<number | null>(null);
 
   const clearLoadTimeout = React.useCallback(() => {
@@ -84,9 +105,40 @@ export function SubscriptionLogo({
   }, []);
 
   React.useEffect(() => {
+    setSourceIdx(0);
     setImageOk(false);
-    loadResolvedRef.current = false;
   }, [domain]);
+
+  const src = sources[sourceIdx] ?? null;
+
+  React.useEffect(() => {
+    if (!src) {
+      clearLoadTimeout();
+      return;
+    }
+    setImageOk(false);
+    clearLoadTimeout();
+    loadTimeoutRef.current = window.setTimeout(() => {
+      loadTimeoutRef.current = null;
+      setSourceIdx((i) => (i + 1 < sources.length ? i + 1 : i));
+    }, LOAD_TIMEOUT_MS);
+    return () => clearLoadTimeout();
+  }, [src, sources.length, clearLoadTimeout]);
+
+  const onImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const { naturalWidth: w, naturalHeight: h } = e.currentTarget;
+    if (w < 2 || h < 2) {
+      setSourceIdx((i) => (i + 1 < sources.length ? i + 1 : i));
+      return;
+    }
+    clearLoadTimeout();
+    setImageOk(true);
+  };
+
+  const onImgError = () => {
+    clearLoadTimeout();
+    setSourceIdx((i) => (i + 1 < sources.length ? i + 1 : i));
+  };
 
   const c = colorFromName(name);
   const toneRing =
@@ -103,50 +155,13 @@ export function SubscriptionLogo({
     className,
   );
 
-  const src = React.useMemo(() => {
-    if (!domain) return null;
-    // Use first-party proxy to avoid third-party blockers breaking logos.
-    return logoProxyUrl(domain, Math.max(64, px * 4));
-  }, [domain, px]);
-
-  // If the image never loads or onLoad never fires (hung / blocked), advance.
-  React.useEffect(() => {
-    if (!src) {
-      clearLoadTimeout();
-      return;
-    }
-    loadResolvedRef.current = false;
-    setImageOk(false);
-    clearLoadTimeout();
-    loadTimeoutRef.current = window.setTimeout(() => {
-      loadTimeoutRef.current = null;
-      if (!loadResolvedRef.current) {
-        // Stop trying this render; keep initials visible.
-        setImageOk(false);
-      }
-    }, LOAD_TIMEOUT_MS);
-    return () => clearLoadTimeout();
-  }, [src, clearLoadTimeout]);
-
-  const onImgLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    clearLoadTimeout();
-    loadResolvedRef.current = true;
-    setImageOk(true);
-  };
-
-  const onImgError = () => {
-    if (loadResolvedRef.current) return;
-    clearLoadTimeout();
-    setImageOk(false);
-  };
-
   return (
     <span
       className={boxBase}
       style={{ background: 'var(--muted)' }}
       aria-hidden
     >
-      {/* Base layer: initials always present so the slot never "disappears". */}
+      {/* Base layer: initials always present so the slot never disappears. */}
       <span
         className="absolute inset-0 flex items-center justify-center sub-logo-fallback"
         style={
@@ -167,7 +182,6 @@ export function SubscriptionLogo({
       </span>
 
       {src ? (
-        /* Top layer: logo, contain-fit so different aspect ratios don't clip badly */
         <span
           className="absolute inset-0 z-10 flex items-center justify-center bg-[var(--muted)] p-0.5"
           style={{
@@ -178,7 +192,7 @@ export function SubscriptionLogo({
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            key={`${domain}`}
+            key={`${domain}-${sourceIdx}`}
             src={src}
             alt=""
             width={px}
