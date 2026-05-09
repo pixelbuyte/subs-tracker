@@ -72,58 +72,58 @@ export default function Home() {
         </div>
 
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <Scroll3D intensity={0.9}>
-            <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="flex flex-col gap-6">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--border)] bg-card px-3 py-1 text-xs font-medium text-[var(--muted-foreground)]">
-                <Sparkles className="size-3.5 text-amber-500" />
-                Stop forgetting $15.99 here, $9.99 there
-              </span>
-
-              <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
-                Your subscriptions,
-                <br />
-                <span className="bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
-                  finally under control.
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            <Scroll3D intensity={0.9} className="flex">
+              <div className="flex flex-col gap-6">
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[var(--border)] bg-card px-3 py-1 text-xs font-medium text-[var(--muted-foreground)]">
+                  <Sparkles className="size-3.5 text-amber-500" />
+                  Stop forgetting $15.99 here, $9.99 there
                 </span>
-              </h1>
 
-              <p className="max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-[17px]">
-                One clean dashboard for every recurring charge. See monthly &amp; yearly spend,
-                get renewal emails before you&apos;re billed, and cancel what you don&apos;t
-                need — without connecting a bank account.
-              </p>
+                <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl">
+                  Your subscriptions,
+                  <br />
+                  <span className="bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-cyan-500 bg-clip-text text-transparent">
+                    finally under control.
+                  </span>
+                </h1>
 
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <Link href="/signup">
-                  <Button size="lg" className="w-full sm:w-auto">
-                    Start free <ArrowRight className="size-4" />
-                  </Button>
-                </Link>
-                <a href="#features">
-                  <Button size="lg" variant="secondary" className="w-full sm:w-auto">
-                    See how it works
-                  </Button>
-                </a>
+                <p className="max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-[17px]">
+                  One clean dashboard for every recurring charge. See monthly &amp; yearly spend,
+                  get renewal emails before you&apos;re billed, and cancel what you don&apos;t
+                  need — without connecting a bank account.
+                </p>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Link href="/signup">
+                    <Button size="lg" className="w-full sm:w-auto">
+                      Start free <ArrowRight className="size-4" />
+                    </Button>
+                  </Link>
+                  <a href="#features">
+                    <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+                      See how it works
+                    </Button>
+                  </a>
+                </div>
+
+                <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--muted-foreground)]">
+                  <li className="inline-flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4 text-emerald-500" /> Free forever plan
+                  </li>
+                  <li className="inline-flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4 text-emerald-500" /> No bank connection
+                  </li>
+                  <li className="inline-flex items-center gap-1.5">
+                    <CheckCircle2 className="size-4 text-emerald-500" /> Works on mobile
+                  </li>
+                </ul>
               </div>
+            </Scroll3D>
 
-              <ul className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--muted-foreground)]">
-                <li className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-emerald-500" /> Free forever plan
-                </li>
-                <li className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-emerald-500" /> No bank connection
-                </li>
-                <li className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="size-4 text-emerald-500" /> Works on mobile
-                </li>
-              </ul>
-            </div>
-
-            {/* Dashboard preview */}
+            {/* Dashboard preview — kept flat (no 3D tilt) */}
             <DashboardPreview />
           </div>
-          </Scroll3D>
         </div>
       </section>
 
